@@ -1,17 +1,17 @@
-import { Fragment } from 'react';
-import { Card, ListGroup, ListGroupItem } from 'react-bootstrap';
+import { Card, ListGroup } from 'react-bootstrap';
+
+import Layout from '../components/Layout';
 
 export default function Home() {
   return (
-    <Fragment>
-      <h2 className="mb-4">Path of Exile Stash Browser</h2>
-      <Card>
-        <h3>Features</h3>
+    <Layout>
+      <Card bg="secondary">
+        <Card.Title>Features</Card.Title>
         <ListGroup>
-          <ListGroupItem>Sync your stash</ListGroupItem>
-          <ListGroupItem>Search and filter</ListGroupItem>
+          <ListGroup.Item>Sync your stash</ListGroup.Item>
+          <ListGroup.Item>Search and filter</ListGroup.Item>
         </ListGroup>
       </Card>
-    </Fragment>
+    </Layout>
   );
 }

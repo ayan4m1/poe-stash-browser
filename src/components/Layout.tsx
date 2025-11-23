@@ -1,5 +1,6 @@
 import { Fragment, ReactNode } from 'react';
 import { Container } from 'react-bootstrap';
+import Heading from './Heading';
 
 interface IProps {
   children: ReactNode;
@@ -8,7 +9,7 @@ interface IProps {
 export default function Layout({ children }: IProps) {
   return (
     <Fragment>
-      <title>Path of Exile Stash Browser v0.1</title>
+      <Heading />
       <Container>{children}</Container>
     </Fragment>
   );
