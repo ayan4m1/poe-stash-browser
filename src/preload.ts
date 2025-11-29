@@ -1,32 +1,27 @@
-// See the Electron documentation for details on how to use preload scripts:
-// https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-console.log('why does this need to be here');
+const sendMessage =
+  (name: string) =>
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  (...args: any[]) =>
+    ipcRenderer.send(name, ...args);
 
-// import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+const handleEvent =
+  (name: string) =>
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+    ipcRenderer.on(name, callback);
 
-// const sendMessage =
-//   (name: string) =>
-//   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-//   (...args: any[]) =>
-//     ipcRenderer.send(name, ...args);
+const invokeEvent =
+  (name: string) =>
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  (...args: any[]) =>
+    ipcRenderer.invoke(name, ...args);
 
-// const handleEvent =
-//   (name: string) =>
-//   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-//   (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
-//     ipcRenderer.on(name, callback);
-
-// const invokeEvent =
-//   (name: string) =>
-//   /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-//   (...args: any[]) =>
-//     ipcRenderer.invoke(name, ...args);
-
-// contextBridge.exposeInMainWorld('authBridge', {
-//   initiate: invokeEvent('initiate'),
-//   connect: sendMessage('connect'),
-//   disconnect: sendMessage('disconnect'),
-//   onConnectionStateChange: handleEvent('onConnectionStateChange'),
-//   onMessageReceived: handleEvent('onMessageReceived')
-// });
+contextBridge.exposeInMainWorld('authBridge', {
+  initiate: invokeEvent('initiate'),
+  connect: sendMessage('connect'),
+  disconnect: sendMessage('disconnect'),
+  onConnectionStateChange: handleEvent('onConnectionStateChange'),
+  onMessageReceived: handleEvent('onMessageReceived')
+});
