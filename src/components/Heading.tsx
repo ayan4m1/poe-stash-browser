@@ -1,16 +1,17 @@
-import { useContext } from 'react';
+import { Fragment, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from 'react-oauth2-code-pkce';
 import { Container, Nav, Navbar } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
+  faDoorClosed,
   faDoorOpen,
   faGears,
   faListSquares
 } from '@fortawesome/free-solid-svg-icons';
 
 export default function Heading() {
-  const { logIn } = useContext(AuthContext);
+  const { logIn, token } = useContext(AuthContext);
 
   return (
     <Container fluid className="g-0">
@@ -28,7 +29,15 @@ export default function Heading() {
         </Nav>
         <Nav className="ms-auto me-4">
           <Nav.Link className="nav-item" onClick={() => logIn('test')}>
-            <FontAwesomeIcon icon={faDoorOpen} /> Login
+            {token ? (
+              <Fragment>
+                <FontAwesomeIcon icon={faDoorClosed} /> Logout
+              </Fragment>
+            ) : (
+              <Fragment>
+                <FontAwesomeIcon icon={faDoorOpen} /> Login
+              </Fragment>
+            )}
           </Nav.Link>
         </Nav>
       </Navbar>
