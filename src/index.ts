@@ -21,6 +21,7 @@ const createWindow = () => {
     }
   });
 
+  mainWindow.maximize();
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Patch CORS headers from GGG
@@ -32,6 +33,9 @@ const createWindow = () => {
       }
 
       details.responseHeaders['Access-Control-Allow-Origin'] = ['*'];
+      details.responseHeaders['Access-Control-Allow-Headers'] = [
+        'Authorization'
+      ];
 
       callback({ responseHeaders: details.responseHeaders });
     }

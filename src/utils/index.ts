@@ -1,3 +1,5 @@
+export const baseApiUrl = 'https://www.pathofexile.com/';
+
 // export const readFile = async (file) =>
 //   new Promise((resolve, reject) => {
 //     const reader = new FileReader();
