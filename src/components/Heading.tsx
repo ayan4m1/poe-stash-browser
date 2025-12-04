@@ -1,6 +1,5 @@
-import { Fragment, useContext } from 'react';
+import { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from 'react-oauth2-code-pkce';
 import { Container, Form, Nav, Navbar } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -11,15 +10,11 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import useLeagues from '../hooks/useLeagues';
-import SuspenseFallback from './SuspenseFallback';
+import useAuthContext from '../hooks/useAuthContext';
 
 export default function Heading() {
-  const { logIn, token } = useContext(AuthContext);
-  const { isLoading, data } = useLeagues();
-
-  if (isLoading) {
-    return <SuspenseFallback />;
-  }
+  const { logIn, token } = useAuthContext();
+  const { data } = useLeagues();
 
   return (
     <Container fluid className="g-0">

@@ -1,12 +1,11 @@
-import { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { AuthContext, IAuthContext } from 'react-oauth2-code-pkce';
 
 import { baseApiUrl } from '../utils';
 import { LeagueResponse } from '../types';
+import useAuthContext from './useAuthContext';
 
 export default function useLeagues() {
-  const { token } = useContext<IAuthContext>(AuthContext);
+  const { token } = useAuthContext();
 
   return useQuery<LeagueResponse>({
     queryKey: ['account', 'leagues'],

@@ -1,16 +1,15 @@
-import { useContext } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { AuthContext, IAuthContext } from 'react-oauth2-code-pkce';
 
 import { baseApiUrl } from '../utils';
 import { StashResponse } from '../types';
+import useAuthContext from './useAuthContext';
 
 export default function useStashes(league: string) {
-  const { token } = useContext<IAuthContext>(AuthContext);
+  const { token } = useAuthContext();
 
   return useQuery<StashResponse>({
-    queryKey: ['account', 'stash', league],
-    enabled: () => Boolean(token),
+    queryKey: ['account', 'stashes', league],
+    enabled: () => Boolean(token && league),
     queryFn: () =>
       fetch(`${baseApiUrl}stash/${league}`, {
         headers: {
