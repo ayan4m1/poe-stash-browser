@@ -57,7 +57,9 @@ export default function Heading() {
                 </Form.Select>
               </Nav.Item>
               <Nav.Item>
-                <Button onClick={handleLeagueChange}>Set</Button>
+                <Button onClick={handleLeagueChange} variant="success">
+                  Select
+                </Button>
               </Nav.Item>
             </Fragment>
           )}

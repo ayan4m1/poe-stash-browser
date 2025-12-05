@@ -75,6 +75,10 @@ export type StashTab = {
   items?: Item[];
 };
 
-export type StashResponse = {
+export type StashesResponse = {
   stashes: StashTab[];
+};
+
+export type StashResponse = {
+  stash: StashTab;
 };

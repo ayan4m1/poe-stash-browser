@@ -26,7 +26,7 @@ const config: ForgeConfig = {
     new WebpackPlugin({
       mainConfig,
       devContentSecurityPolicy:
-        "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: www.pathofexile.com api.pathofexile.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:",
+        "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: www.pathofexile.com api.pathofexile.com web.poecdn.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:",
       renderer: {
         config: rendererConfig,
         entryPoints: [

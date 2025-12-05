@@ -1,6 +1,6 @@
 import { ReactNode, useState } from 'react';
 
-import { League } from '../types';
+import { League, StashTab } from '../types';
 import { AppContext } from '../hooks/useAppContext';
 
 interface IProps {
@@ -9,12 +9,15 @@ interface IProps {
 
 export default function AppContextProvider({ children }: IProps) {
   const [selectedLeague, setSelectedLeague] = useState<League>(null);
+  const [selectedStash, setSelectedStash] = useState<StashTab>(null);
 
   return (
     <AppContext.Provider
       value={{
         selectedLeague,
-        setSelectedLeague
+        setSelectedLeague,
+        selectedStash,
+        setSelectedStash
       }}
     >
       {children}
