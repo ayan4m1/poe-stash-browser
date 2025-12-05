@@ -1,11 +1,13 @@
 import { TAuthConfig } from 'react-oauth2-code-pkce';
 
-export const baseApiUrl = 'https://www.pathofexile.com/';
+export const baseAuthUrl = 'https://www.pathofexile.com/';
+
+export const baseApiUrl = 'https://api.pathofexile.com/';
 
 export const authConfig: TAuthConfig = {
   clientId: 'stashr',
-  authorizationEndpoint: `${baseApiUrl}oauth/authorize`,
-  tokenEndpoint: `${baseApiUrl}oauth/token`,
+  authorizationEndpoint: `${baseAuthUrl}oauth/authorize`,
+  tokenEndpoint: `${baseAuthUrl}oauth/token`,
   redirectUri: 'http://localhost:3000/main_window/index.html',
   scope: 'account:profile account:leagues account:stashes',
   autoLogin: false,
