@@ -13,7 +13,7 @@ import { rendererConfig } from './webpack.renderer.config';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: true
+    asar: false
   },
   rebuildConfig: {},
   makers: [
@@ -23,7 +23,7 @@ const config: ForgeConfig = {
     new MakerDeb({})
   ],
   plugins: [
-    new AutoUnpackNativesPlugin({}),
+    // new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
       mainConfig,
       devContentSecurityPolicy:
@@ -51,7 +51,7 @@ const config: ForgeConfig = {
       [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-      [FuseV1Options.OnlyLoadAppFromAsar]: true
+      [FuseV1Options.OnlyLoadAppFromAsar]: false
     })
   ]
 };
