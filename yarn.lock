@@ -403,16 +403,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electron-forge/plugin-auto-unpack-natives@npm:^7.10.2":
-  version: 7.10.2
-  resolution: "@electron-forge/plugin-auto-unpack-natives@npm:7.10.2"
-  dependencies:
-    "@electron-forge/plugin-base": "npm:7.10.2"
-    "@electron-forge/shared-types": "npm:7.10.2"
-  checksum: 10c0/c8859c54d02b63a9fb9336e0855b335c1f216a897dff2a23a06e4ca4108a34e6c781a7d81e78b6ced1684c3d3f2d17cbf38274fb47b085c0c115a3bfa021b4da
-  languageName: node
-  linkType: hard
-
 "@electron-forge/plugin-base@npm:7.10.2":
   version: 7.10.2
   resolution: "@electron-forge/plugin-base@npm:7.10.2"
@@ -7931,7 +7921,6 @@ __metadata:
     "@electron-forge/maker-rpm": "npm:^7.10.2"
     "@electron-forge/maker-squirrel": "npm:^7.10.2"
     "@electron-forge/maker-zip": "npm:^7.10.2"
-    "@electron-forge/plugin-auto-unpack-natives": "npm:^7.10.2"
     "@electron-forge/plugin-fuses": "npm:^7.10.2"
     "@electron-forge/plugin-webpack": "npm:^7.10.2"
     "@electron/fuses": "npm:^1.8.0"
