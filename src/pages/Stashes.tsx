@@ -1,5 +1,5 @@
-import { ChangeEvent, useCallback } from 'react';
-import { Form, Spinner } from 'react-bootstrap';
+import { Fragment } from 'react';
+import { ProgressBar, Spinner } from 'react-bootstrap';
 
 import Layout from '../components/Layout';
 import useStashes from '../hooks/useStashes';
@@ -7,52 +7,29 @@ import useAppContext from '../hooks/useAppContext';
 import useStashItems from '../hooks/useStashItems';
 
 export default function Stashes() {
-  const { selectedLeague, selectedStash, setSelectedStash } = useAppContext();
+  const { selectedLeague } = useAppContext();
   const { data } = useStashes(selectedLeague?.id);
-  const { data: itemData } = useStashItems(
-    selectedLeague?.id,
-    selectedStash?.id
-  );
-  const handleStashChange = useCallback(
-    (e: ChangeEvent<HTMLSelectElement>) => {
-      const stash = data.stashes.find((stash) => stash.id === e.target.value);
+  const queries = useStashItems(selectedLeague?.id, data?.stashes);
 
-      if (!stash) {
-        return;
-      }
-
-      setSelectedStash(stash);
-    },
-    [setSelectedStash, data]
-  );
-
-  console.dir(itemData);
+  const doneFetching = queries.every((query) => query.isFetched);
 
   return (
     <Layout>
       <h1>Stashes</h1>
-      {selectedLeague ? (
-        data ? (
-          <Form.Select onChange={handleStashChange}>
-            {data.stashes.map((stash) => (
-              <option key={stash.id} value={stash.id}>
-                {stash.name} ({stash.type})
-              </option>
-            ))}
-          </Form.Select>
-        ) : (
-          <Spinner />
-        )
+      {!selectedLeague && <p>Select a league first</p>}
+      {doneFetching ? (
+        <p></p>
       ) : (
-        <p>Select a league first</p>
+        <Fragment>
+          <h4>Fetching stash tabs&hellip;</h4>
+          <Spinner className="text-center" />
+          <ProgressBar
+            min={1}
+            now={queries.filter((query) => query.isFetched).length}
+            max={queries.length}
+          />
+        </Fragment>
       )}
-      {itemData
-        ? itemData.stash.items.map((item) => (
-            <p key={item.id}>
-              <img src={item.icon} /> {item.name} {item.typeLine}
-            </p>
-          ))
-        : null}
     </Layout>
   );
 }

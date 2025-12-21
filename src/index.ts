@@ -33,10 +33,6 @@ const createWindow = () => {
       }
 
       details.responseHeaders['Access-Control-Allow-Origin'] = ['*'];
-      details.responseHeaders['Access-Control-Allow-Headers'] = [
-        'Authorization'
-      ];
-      details.responseHeaders['Access-Control-Allow-Methods'] = ['*'];
 
       callback({ responseHeaders: details.responseHeaders });
     }
