@@ -1,4 +1,4 @@
-import type { Configuration } from 'webpack';
+import { WebpackConfiguration } from '@electron-forge/plugin-webpack/dist/Config';
 
 import { rules } from './webpack.rules';
 import { plugins } from './webpack.plugins';
@@ -8,7 +8,7 @@ rules.push({
   use: ['style-loader', 'css-loader', 'sass-loader']
 });
 
-export const rendererConfig: Configuration = {
+export const rendererConfig: WebpackConfiguration = {
   module: {
     rules
   },
