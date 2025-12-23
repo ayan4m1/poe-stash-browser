@@ -27,7 +27,7 @@ export default function useStashItems(league: string, stashes: StashTab[]) {
     }
   }, [league, stashes, token]);
 
-  return useQueries<StashResponse[]>({
+  return useQueries({
     queries:
       stashes?.map((stash) => ({
         queryKey: ['account', league, 'stash', stash.id],
@@ -38,7 +38,7 @@ export default function useStashItems(league: string, stashes: StashTab[]) {
               headers: {
                 Authorization: `Bearer ${token}`
               }
-            }).then((data) => data.json())
+            }).then((data) => data.json() as unknown as StashResponse)
           )
       })) ?? []
   });

@@ -5,3 +5,12 @@
 
 // Component styles
 @import "./components/Heading";
+
+@font-face {
+  font-family: "FontinSmallcaps";
+  src: url("./fonts/fontin-smallcaps-webfont.woff");
+}
+
+body {
+  font-family: "FontinSmallcaps";
+}
