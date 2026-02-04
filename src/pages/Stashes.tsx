@@ -1,5 +1,11 @@
 import { fromUnixTime, formatRelative } from 'date-fns';
-import { Fragment, KeyboardEvent, useCallback, useState } from 'react';
+import {
+  ChangeEvent,
+  Fragment,
+  KeyboardEvent,
+  useCallback,
+  useState
+} from 'react';
 import {
   Button,
   Container,
@@ -23,10 +29,16 @@ export default function Stashes() {
   const { selectedLeague } = useAppContext();
   const { data } = useStashes(selectedLeague?.id);
   const queries = useStashItems(selectedLeague?.id, data?.stashes);
-  const doneFetching = queries.every((query) => query.isFetched);
+  const doneFetching = queries.every(
+    (query) => query.isFetched && !query.isRefetching
+  );
   const handleRefetchClick = useCallback(
     () => queries.forEach((query) => query.refetch()),
     [queries]
+  );
+  const handleQueryChange = useCallback(
+    (e: ChangeEvent) => setQuery((e.target as HTMLFormElement).value),
+    []
   );
   const handleSearchClick = useCallback(() => {
     if (!doneFetching) {
@@ -42,7 +54,15 @@ export default function Stashes() {
       }
 
       for (const item of query.data.stash.items) {
-        const slug = `${item.name} ${item.typeLine}`;
+        const slug = `${item.name} ${item.typeLine}
+${item.implicitMods?.join('\n')}
+${item.explicitMods?.join('\n')}
+${item.craftedMods?.join('\n')}
+`;
+
+        if (queryMatcher.test(slug)) {
+          items.push(item);
+        }
       }
     }
 
@@ -71,7 +91,13 @@ export default function Stashes() {
           </Button>
           <InputGroup className="my-4">
             <InputGroup.Text>Query</InputGroup.Text>
-            <Form.Control type="text" name="query" onKeyDown={handleKeyDown} />
+            <Form.Control
+              type="text"
+              name="query"
+              onKeyDown={handleKeyDown}
+              value={query}
+              onChange={handleQueryChange}
+            />
             <Button onClick={handleSearchClick}>Search</Button>
           </InputGroup>
           <Container fluid>
@@ -88,7 +114,10 @@ export default function Stashes() {
           <Spinner className="text-center" />
           <ProgressBar
             min={1}
-            now={queries.filter((query) => query.isFetched).length}
+            now={
+              queries.filter((query) => query.isFetched && !query.isRefetching)
+                .length
+            }
             max={queries.length}
           />
         </Fragment>
