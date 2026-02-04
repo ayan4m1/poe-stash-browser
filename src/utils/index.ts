@@ -57,6 +57,7 @@ export const setupRateLimiters = (headers: Headers) => {
     const parsedRule = parseRateLimitRule(rule);
     const parsedState = parseRateLimitRule(state);
     const newLimiter = new Bottleneck({
+      maxConcurrent: 1,
       reservoir: parsedRule[0],
       reservoirIncreaseAmount: parsedRule[0],
       reservoirIncreaseMaximum: parsedRule[0],
@@ -74,7 +75,6 @@ export const setupRateLimiters = (headers: Headers) => {
       newLimiter.incrementReservoir(-parsedState[0]);
     }
 
-    newLimiter.chain(rateLimiters[rateLimiters.length - 1]);
-    rateLimiters.push(newLimiter);
+    rateLimiters.push(newLimiter.chain(rateLimiters[rateLimiters.length - 1]));
   }
 };
