@@ -8,7 +8,7 @@ interface IProps {
 
 export default function Item({ item }: IProps) {
   return (
-    <Col className="mb-2" xs={12}>
+    <Col className="mb-2" xs={12} sm={4} md={3}>
       <Card>
         <Card.Header>
           <Card.Title>
