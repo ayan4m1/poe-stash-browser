@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 
+import useRateLimiters from './useRateLimiters';
 import useAuthContext from './useAuthContext';
 import { StashResponse, StashTab } from '../types';
-import { baseApiUrl, setupRateLimiters, rateLimiters } from '../utils';
+import { baseApiUrl } from '../utils';
 
-export default function useStashItems(league: string, stashes: StashTab[]) {
+export default function useStashItems(league?: string, stashes?: StashTab[]) {
   const [initialized, setInitialized] = useState(false);
+  const { limiter, setupRateLimiters } = useRateLimiters();
   const { token } = useAuthContext();
 
   useEffect(() => {
@@ -22,18 +24,18 @@ export default function useStashItems(league: string, stashes: StashTab[]) {
       setInitialized(true);
     }
 
-    if (!rateLimiters.length && league && stashes?.length && token) {
+    if (!limiter && league && stashes?.length && token) {
       fetchInitialStash();
     }
-  }, [league, stashes, token]);
+  }, [league, stashes, token, limiter, setupRateLimiters]);
 
   return useQueries({
     queries:
       stashes?.map((stash) => ({
         queryKey: ['account', league, 'stash', stash.id],
-        enabled: () => initialized,
+        enabled: () => Boolean(initialized && limiter),
         queryFn: () =>
-          rateLimiters[rateLimiters.length - 1].schedule(() =>
+          limiter.schedule(() =>
             fetch(`${baseApiUrl}stash/${league}/${stash.id}`, {
               headers: {
                 Authorization: `Bearer ${token}`

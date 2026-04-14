@@ -1,4 +1,3 @@
-import { fromUnixTime, formatRelative } from 'date-fns';
 import {
   ChangeEvent,
   Fragment,
@@ -49,7 +48,7 @@ export default function Stashes() {
     const items: ItemType[] = [];
 
     for (const query of queries) {
-      if (!query.data.stash?.items?.length) {
+      if (!query?.data?.stash?.items?.length) {
         continue;
       }
 

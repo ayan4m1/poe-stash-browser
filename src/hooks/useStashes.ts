@@ -4,7 +4,7 @@ import { baseApiUrl } from '../utils';
 import { StashesResponse } from '../types';
 import useAuthContext from './useAuthContext';
 
-export default function useStashes(league: string) {
+export default function useStashes(league?: string) {
   const { token } = useAuthContext();
 
   return useQuery<StashesResponse>({
