@@ -5,7 +5,8 @@ import { useCallback, useState } from 'react';
 import { parseRateLimitRule } from '../utils';
 
 export default function useRateLimiters() {
-  const [limiter, setLimiter] = useState<Bottleneck>(null);
+  const [limiter, setLimiter] = useState<Bottleneck>();
+  const [requestTime, setRequestTime] = useState(0);
   const setupRateLimiters = useCallback((headers: Headers) => {
     if (!headers.has('X-Rate-Limit-Rules')) {
       throw new Error('Missing X-Rate-Limit-Rules in response!');
@@ -23,39 +24,51 @@ export default function useRateLimiters() {
       throw new Error(`Missing header ${stateHeader} in response`);
     }
 
-    let finalLimiter = new Bottleneck({ maxConcurrent: 1, minTime: 250 });
+    const rules = headers.get(header)?.split(',');
+    const states = headers.get(stateHeader)?.split(',');
 
-    const rules = headers.get(header).split(',');
-    const states = headers.get(stateHeader).split(',');
-
-    for (let i = rules.length - 1; i >= 0; i--) {
-      const rule = rules[i];
-      const state = states[i];
-      const parsedRule = parseRateLimitRule(rule);
-      const parsedState = parseRateLimitRule(state);
-      const newLimiter = new Bottleneck({
-        reservoir: parsedRule[0],
-        reservoirIncreaseAmount: parsedRule[0],
-        reservoirIncreaseMaximum: parsedRule[0],
-        reservoirIncreaseInterval: parsedRule[1] * 1e3
-      });
-
-      console.log(
-        `Adding new limiter (${(parsedRule[0] / parsedRule[1]).toFixed(1)} req/sec)`
-      );
-
-      if (parsedState[0] > 0) {
-        console.log(
-          `Setting limiter to ${parsedState[0]}/${parsedRule[0]} requests`
-        );
-        newLimiter.incrementReservoir(-parsedState[0]);
-      }
-
-      finalLimiter = newLimiter.chain(finalLimiter);
+    if (!rules || !states) {
+      throw new Error(`Invalid headers in response`);
     }
 
-    setLimiter(finalLimiter);
+    let minTime = 250;
+    let ruleInterval = 0;
+    let remainingRequests = 0;
+    let maxRequests = 0;
+
+    for (let i = 0; i < rules.length; i++) {
+      const parsedRule = parseRateLimitRule(rules[i]);
+      const parsedState = parseRateLimitRule(states[i]);
+      const ruleRate = Math.ceil((parsedRule[1] * 1e3) / parsedRule[0]);
+      const interval = Math.ceil(parsedRule[1] * 1e3);
+
+      console.log(
+        `Rule ${i}: ${parsedRule[0]}/${parsedRule[1]}s = ${(parsedRule[0] / parsedRule[1]).toFixed(1)} req/sec (minTime: ${ruleRate}ms)`
+      );
+
+      if (ruleRate > minTime) {
+        minTime = ruleRate;
+        ruleInterval = interval;
+        remainingRequests = parsedRule[0] - parsedState[0];
+        maxRequests = parsedRule[0];
+      }
+    }
+
+    console.log(
+      `Setting limiter to ${(1000 / minTime).toFixed(1)} req/sec (${minTime}ms) - ${maxRequests} ${remainingRequests}`
+    );
+
+    setLimiter(
+      new Bottleneck({
+        maxConcurrent: 1,
+        minTime,
+        reservoir: remainingRequests,
+        reservoirRefreshAmount: maxRequests,
+        reservoirRefreshInterval: ruleInterval
+      })
+    );
+    setRequestTime(ruleInterval);
   }, []);
 
-  return { limiter, setupRateLimiters };
+  return { limiter, requestTime, setupRateLimiters };
 }
