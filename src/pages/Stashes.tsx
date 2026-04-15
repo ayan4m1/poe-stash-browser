@@ -44,7 +44,7 @@ export default function Stashes() {
       return;
     }
 
-    const queryMatcher = new RegExp(query);
+    const queryMatcher = new RegExp(query, 'i');
     const items: ItemType[] = [];
 
     for (const query of queries) {
