@@ -55,8 +55,9 @@ export default function useRateLimiters() {
     }
 
     console.log(
-      `Setting limiter to ${(1000 / minTime).toFixed(1)} req/sec (${minTime}ms) - ${maxRequests} ${remainingRequests}`
+      `Setting limiter to ${(1000 / minTime).toFixed(1)} req/sec (${minTime}ms)`
     );
+    console.log(`${remainingRequests} requests remaining`);
 
     setLimiter(
       new Bottleneck({
