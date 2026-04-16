@@ -33,6 +33,18 @@ const config: ForgeConfig = {
       }
     })
   ],
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'ayan4m1',
+          name: 'poe-stash-browser'
+        },
+        generateReleaseNotes: true
+      }
+    }
+  ],
   plugins: [
     // new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
