@@ -50,7 +50,7 @@ export default function useStashItems(league?: string, stashes?: StashTab[]) {
 
                 result.stash.items = result.stash.items?.map((item) => ({
                   ...item,
-                  stashTab: result.stash.name
+                  stashTab: `${result.stash.name} (#${result.stash.index})`
                 }));
 
                 return result;

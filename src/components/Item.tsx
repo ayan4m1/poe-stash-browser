@@ -40,30 +40,28 @@ export default function Item({ item }: IProps) {
     <Col className="mb-2 d-flex" xs={12} sm={4} md={3}>
       <Card
         style={{
-          borderRadius: 8,
+          borderRadius: 16,
           backgroundColor: 'black',
           color: 'white',
           flexGrow: 1
         }}
       >
-        <Card.Header style={{ backgroundColor: '#262323' }}>
-          <Card.Title className="text-center" style={{ color }}>
-            <p>
-              <img src={item.icon} />
-            </p>
-            <OverlayTrigger
-              placement="bottom"
-              overlay={(props) => (
-                <Tooltip {...props}>{item?.stashTab}</Tooltip>
-              )}
-            >
+        <OverlayTrigger
+          placement="bottom"
+          overlay={(props) => <Tooltip {...props}>{item?.stashTab}</Tooltip>}
+        >
+          <Card.Header style={{ backgroundColor: '#262323' }}>
+            <Card.Title className="text-center" style={{ color }}>
+              <p>
+                <img src={item.icon} />
+              </p>
               <p>
                 {item.name} {item.typeLine}{' '}
                 {item.stackSize ? `(${item.stackSize})` : null}
               </p>
-            </OverlayTrigger>
-          </Card.Title>
-        </Card.Header>
+            </Card.Title>
+          </Card.Header>
+        </OverlayTrigger>
         {!slimDisplay && (
           <Card.Body>
             <Row className="text-center">
@@ -81,7 +79,7 @@ export default function Item({ item }: IProps) {
                     );
                   })}
                 </ListGroup>
-                <hr />
+                {Boolean(item.properties?.length) && <hr />}
                 <ListGroup>
                   {item.ilvl > 0 && (
                     <ListGroup.Item>Item Level: {item.ilvl}</ListGroup.Item>

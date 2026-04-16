@@ -38,13 +38,6 @@ import {
 import { buildItemText } from '../utils';
 
 export default function Stashes() {
-  const { values, handleChange, handleSubmit, errors } = useFormik<FilterForm>({
-    initialValues: {
-      rarity: undefined,
-      type: undefined
-    },
-    onSubmit: () => {}
-  });
   const [query, setQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
   const { selectedLeague } = useAppContext();
@@ -65,39 +58,66 @@ export default function Stashes() {
     (e: ChangeEvent) => setQuery((e.target as HTMLFormElement).value),
     []
   );
-  const handleSearchClick = useCallback(() => {
-    if (!doneFetching) {
-      return;
-    }
-
-    const queryMatcher = new RegExp(query, 'i');
-    const items: ItemType[] = [];
-
-    for (const query of queries) {
-      if (!query?.data?.stash?.items?.length) {
-        continue;
-      }
-
-      for (const item of query.data.stash.items) {
-        const slug = buildItemText(item);
-
-        if (queryMatcher.test(slug)) {
-          items.push(item);
+  const { values, handleChange, handleSubmit } = useFormik<FilterForm>({
+    initialValues: {
+      rarity: undefined,
+      type: undefined
+    },
+    onSubmit: useCallback(
+      ({ rarity, type }) => {
+        if (!doneFetching) {
+          return;
         }
-      }
-    }
 
-    setFilteredItems(items);
-  }, [doneFetching, queries, query]);
+        const queryMatcher = new RegExp(query, 'i');
+        const items: ItemType[] = [];
+
+        for (const query of queries) {
+          if (!query?.data?.stash?.items?.length) {
+            continue;
+          }
+
+          for (const item of query.data.stash.items) {
+            const slug = buildItemText(item);
+
+            let valid = queryMatcher.test(slug);
+
+            console.dir(rarity);
+
+            if (rarity) {
+              valid = item.rarity === rarity;
+            }
+
+            if (type) {
+              if (!item.properties?.length) {
+                valid = false;
+              } else {
+                const { name } = item.properties[0];
+
+                valid = name === type;
+              }
+            }
+
+            if (valid) {
+              items.push(item);
+            }
+          }
+        }
+
+        setFilteredItems(items);
+      },
+      [doneFetching, queries, query]
+    )
+  });
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.code !== 'Enter') {
         return;
       }
 
-      handleSearchClick();
+      handleSubmit();
     },
-    [handleSearchClick]
+    [handleSubmit]
   );
   const fetchEstimate = useMemo(() => {
     const time =
@@ -126,10 +146,14 @@ export default function Stashes() {
           <Button variant="danger" onClick={handleRefetchClick}>
             Refetch
           </Button>
-          <Form>
+          <Form onSubmit={handleSubmit}>
             <Form.Group>
               <Form.Label>Rarity:</Form.Label>
-              <Form.Select name="quality" onChange={handleChange}>
+              <Form.Select
+                name="rarity"
+                onChange={handleChange}
+                value={values.rarity}
+              >
                 <option>Any</option>
                 {Object.values(ItemRarity).map((rarity) => (
                   <option key={rarity} value={rarity}>
@@ -140,7 +164,11 @@ export default function Stashes() {
             </Form.Group>
             <Form.Group>
               <Form.Label>Item Type:</Form.Label>
-              <Form.Select name="type" onChange={handleChange}>
+              <Form.Select
+                name="type"
+                onChange={handleChange}
+                value={values.type}
+              >
                 <option>Any</option>
                 {Object.entries(ItemTypes).map(([value, key]) => (
                   <option key={key} value={value}>
@@ -159,7 +187,7 @@ export default function Stashes() {
                   value={query}
                   onChange={handleQueryChange}
                 />
-                <Button onClick={handleSearchClick}>Search</Button>
+                <Button type="submit">Search</Button>
               </InputGroup>
             </Form.Group>
           </Form>
