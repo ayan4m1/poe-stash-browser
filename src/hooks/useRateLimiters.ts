@@ -67,7 +67,7 @@ export default function useRateLimiters() {
         reservoirRefreshInterval: ruleInterval
       })
     );
-    setRequestTime(ruleInterval);
+    setRequestTime(minTime);
   }, []);
 
   return { limiter, requestTime, setupRateLimiters };
