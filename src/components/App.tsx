@@ -27,25 +27,39 @@ const queryClient = new QueryClient({
   }
 });
 const persister = createAsyncStoragePersister({ storage: localStorage });
-const root = createRoot(document.getElementById('root'));
+const rootElem = document.getElementById('root');
 
-root.render(
-  <HashRouter>
-    <Suspense fallback={<SuspenseFallback />}>
-      <AppContextProvider>
-        <PersistQueryClientProvider
-          client={queryClient}
-          persistOptions={{ persister }}
-        >
-          <AuthProvider authConfig={authConfig}>
-            <Routes>
-              <Route element={<Home />} index />
-              <Route element={<Stashes />} path="/stashes" />
-              <Route element={<Settings />} path="/settings" />
-            </Routes>
-          </AuthProvider>
-        </PersistQueryClientProvider>
-      </AppContextProvider>
-    </Suspense>
-  </HashRouter>
-);
+if (rootElem) {
+  const root = createRoot(rootElem);
+
+  root.render(
+    <HashRouter>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossOrigin="anonymous"
+      />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap"
+        rel="stylesheet"
+      ></link>
+      <Suspense fallback={<SuspenseFallback />}>
+        <AppContextProvider>
+          <PersistQueryClientProvider
+            client={queryClient}
+            persistOptions={{ persister }}
+          >
+            <AuthProvider authConfig={authConfig}>
+              <Routes>
+                <Route element={<Home />} index />
+                <Route element={<Stashes />} path="/stashes" />
+                <Route element={<Settings />} path="/settings" />
+              </Routes>
+            </AuthProvider>
+          </PersistQueryClientProvider>
+        </AppContextProvider>
+      </Suspense>
+    </HashRouter>
+  );
+}
