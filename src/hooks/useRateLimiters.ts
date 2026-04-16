@@ -8,11 +8,13 @@ export default function useRateLimiters() {
   const [limiter, setLimiter] = useState<Bottleneck>();
   const [requestTime, setRequestTime] = useState(0);
   const setupRateLimiters = useCallback((headers: Headers) => {
-    if (!headers.has('X-Rate-Limit-Rules')) {
+    const ruleNames = headers.get('X-Rate-Limit-Rules');
+
+    if (!ruleNames) {
       throw new Error('Missing X-Rate-Limit-Rules in response!');
     }
 
-    const [ruleName] = headers.get('X-Rate-Limit-Rules').split(',');
+    const [ruleName] = ruleNames.split(',');
     const header = `X-Rate-Limit-${titleCase(ruleName)}`;
     const stateHeader = `${header}-State`;
 

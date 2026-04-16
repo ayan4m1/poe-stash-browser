@@ -9,12 +9,12 @@ export interface IAppContext {
   setSelectedStash: Dispatch<SetStateAction<StashTab>>;
 }
 
+/* eslint-disable @typescript-eslint/no-empty-function */
 export const AppContext = createContext<IAppContext>({
-  selectedLeague: null,
-  setSelectedLeague: null,
-  selectedStash: null,
-  setSelectedStash: null
+  setSelectedLeague: () => {},
+  setSelectedStash: () => {}
 });
+/* eslint-enable @typescript-eslint/no-empty-function */
 
 export default function useAppContext() {
   return useContext<IAppContext>(AppContext);
