@@ -8,11 +8,15 @@ import { baseApiUrl } from '../utils';
 
 export default function useStashItems(league?: string, stashes?: StashTab[]) {
   const [initialized, setInitialized] = useState(false);
-  const { limiter, setupRateLimiters } = useRateLimiters();
+  const { limiter, requestTime, setupRateLimiters } = useRateLimiters();
   const { token } = useAuthContext();
 
   useEffect(() => {
     async function fetchInitialStash() {
+      if (!stashes) {
+        return;
+      }
+
       const [stash] = stashes;
       const result = await fetch(`${baseApiUrl}stash/${league}/${stash.id}`, {
         headers: {
@@ -29,19 +33,30 @@ export default function useStashItems(league?: string, stashes?: StashTab[]) {
     }
   }, [league, stashes, token, limiter, setupRateLimiters]);
 
-  return useQueries({
-    queries:
-      stashes?.map((stash) => ({
-        queryKey: ['account', league, 'stash', stash.id],
-        enabled: () => Boolean(initialized && limiter),
-        queryFn: () =>
-          limiter.schedule(() =>
-            fetch(`${baseApiUrl}stash/${league}/${stash.id}`, {
-              headers: {
-                Authorization: `Bearer ${token}`
-              }
-            }).then((data) => data.json() as unknown as StashResponse)
-          )
-      })) ?? []
-  });
+  return {
+    queries: useQueries({
+      queries:
+        stashes?.map((stash) => ({
+          queryKey: ['account', league, 'stash', stash.id],
+          enabled: () => Boolean(initialized && limiter),
+          queryFn: () =>
+            limiter?.schedule(() =>
+              fetch(`${baseApiUrl}stash/${league}/${stash.id}`, {
+                headers: {
+                  Authorization: `Bearer ${token}`
+                }
+              }).then((data) => {
+                const result = data.json() as unknown as StashResponse;
+
+                result.stash.items?.forEach(
+                  (item) => (item.stashTab = result.stash)
+                );
+
+                return result;
+              })
+            )
+        })) ?? []
+    }),
+    requestTime
+  };
 }

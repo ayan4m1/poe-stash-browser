@@ -38,6 +38,23 @@ export enum ItemRarity {
   Unique = 'Unique'
 }
 
+export enum ItemFrameType {
+  Normal = 0,
+  Magic,
+  Rare,
+  Unique,
+  Gem,
+  Currency,
+  DivinationCard,
+  Quest,
+  Prophecy,
+  Foil,
+  SupporterFoil,
+  Necropolis,
+  Gold,
+  Breach
+}
+
 export enum ItemColor {
   Red = 'S',
   Green = 'D',
@@ -46,6 +63,7 @@ export enum ItemColor {
 }
 
 export type Item = {
+  stashTab?: StashTab;
   verified: boolean;
   w: number;
   h: number;
@@ -140,7 +158,7 @@ export type Item = {
     // TODO: nodes
   };
   ruthless?: true;
-  frameType: number;
+  frameType: ItemFrameType;
   artFilename: string;
   hybrid?: {
     isVaalGem?: boolean;

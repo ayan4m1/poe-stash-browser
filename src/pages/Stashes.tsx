@@ -3,10 +3,12 @@ import {
   Fragment,
   KeyboardEvent,
   useCallback,
+  useMemo,
   useState
 } from 'react';
 import {
   Button,
+  Col,
   Container,
   Form,
   InputGroup,
@@ -21,13 +23,22 @@ import useStashes from '../hooks/useStashes';
 import useAppContext from '../hooks/useAppContext';
 import useStashItems from '../hooks/useStashItems';
 import { Item as ItemType } from '../types';
+import {
+  addSeconds,
+  intervalToDuration,
+  formatDuration,
+  interval
+} from 'date-fns';
 
 export default function Stashes() {
   const [query, setQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
   const { selectedLeague } = useAppContext();
   const { data } = useStashes(selectedLeague?.id);
-  const queries = useStashItems(selectedLeague?.id, data?.stashes);
+  const { queries, requestTime } = useStashItems(
+    selectedLeague?.id,
+    data?.stashes
+  );
   const doneFetching = queries.every(
     (query) => query.isFetched && !query.isRefetching
   );
@@ -77,10 +88,16 @@ ${item.craftedMods?.join('\n')}
     },
     [handleSearchClick]
   );
+  const fetchEstimate = useMemo(
+    () =>
+      queries.filter((query) => !query.isFetched || query.isRefetching).length *
+      (requestTime / 1e3),
+    [requestTime, queries]
+  );
 
   return (
     <Layout>
-      <h1>Stashes</h1>
+      <h1>My Stashes</h1>
       {!selectedLeague ? (
         <p>Select a league first</p>
       ) : doneFetching ? (
@@ -109,16 +126,33 @@ ${item.craftedMods?.join('\n')}
         </Fragment>
       ) : (
         <Fragment>
-          <h4>Fetching stash tabs&hellip;</h4>
-          <Spinner className="text-center" />
-          <ProgressBar
-            min={1}
-            now={
-              queries.filter((query) => query.isFetched && !query.isRefetching)
-                .length
-            }
-            max={queries.length}
-          />
+          <Row>
+            <Col xs={12} sm={6}>
+              <h4>Fetching stash tabs&hellip;</h4>
+            </Col>
+            <Col xs={12} sm={6} className="text-end">
+              <Spinner className="text-center" />
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={12}>
+              Approximate time remaining:{' '}
+              {formatDuration(
+                intervalToDuration(
+                  interval(new Date(), addSeconds(new Date(), fetchEstimate))
+                )
+              ) || 'Unknown'}
+              <ProgressBar
+                min={1}
+                now={
+                  queries.filter(
+                    (query) => query.isFetched && !query.isRefetching
+                  ).length
+                }
+                max={queries.length}
+              />
+            </Col>
+          </Row>
         </Fragment>
       )}
     </Layout>
