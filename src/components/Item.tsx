@@ -9,6 +9,7 @@ import {
 } from 'react-bootstrap';
 
 import { Item, ItemFrameType, ItemRarity } from '../types';
+import { interpolateProperties } from '../utils';
 
 interface IProps {
   item: Item;
@@ -53,7 +54,7 @@ export default function Item({ item }: IProps) {
             <OverlayTrigger
               placement="bottom"
               overlay={(props) => (
-                <Tooltip {...props}>{item?.stashTab?.name}</Tooltip>
+                <Tooltip {...props}>{item?.stashTab}</Tooltip>
               )}
             >
               <p>
@@ -67,21 +68,44 @@ export default function Item({ item }: IProps) {
           <Card.Body>
             <Row className="text-center">
               <Col xs={12}>
-                {item.ilvl > 0 && <p>Item Level: {item.ilvl}</p>}
-                {Boolean(item.itemLevel) && (
-                  <p>Requires Level {item.itemLevel}</p>
-                )}
+                <ListGroup>
+                  {item.properties?.map((property) => {
+                    if (property.name.startsWith('Currently')) {
+                      return null;
+                    }
+
+                    return (
+                      <ListGroup.Item key={property.name}>
+                        {interpolateProperties(property)}
+                      </ListGroup.Item>
+                    );
+                  })}
+                </ListGroup>
+                <hr />
+                <ListGroup>
+                  {item.ilvl > 0 && (
+                    <ListGroup.Item>Item Level: {item.ilvl}</ListGroup.Item>
+                  )}
+                  {item.requirements?.map((requirement) => (
+                    <ListGroup.Item key={requirement.name}>
+                      {interpolateProperties(requirement, true)}
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+                {(item.ilvl > 0 || item.requirements?.length) && <hr />}
               </Col>
               <Col xs={12}>
                 <ListGroup>
                   {item.implicitMods?.map((implicit) => (
-                    <ListGroup.Item>{implicit}</ListGroup.Item>
+                    <ListGroup.Item key={implicit}>{implicit}</ListGroup.Item>
                   ))}
-                  {Boolean(
-                    item.implicitMods?.length && item.explicitMods?.length
-                  ) && <hr />}
+                </ListGroup>
+                {Boolean(
+                  item.implicitMods?.length && item.explicitMods?.length
+                ) && <hr />}
+                <ListGroup>
                   {item.explicitMods?.map((explicit) => (
-                    <ListGroup.Item>{explicit}</ListGroup.Item>
+                    <ListGroup.Item key={explicit}>{explicit}</ListGroup.Item>
                   ))}
                 </ListGroup>
               </Col>

@@ -1,3 +1,4 @@
+import { useFormik } from 'formik';
 import {
   ChangeEvent,
   Fragment,
@@ -6,6 +7,12 @@ import {
   useMemo,
   useState
 } from 'react';
+import {
+  addSeconds,
+  intervalToDuration,
+  formatDuration,
+  interval
+} from 'date-fns';
 import {
   Button,
   Col,
@@ -22,15 +29,22 @@ import Layout from '../components/Layout';
 import useStashes from '../hooks/useStashes';
 import useAppContext from '../hooks/useAppContext';
 import useStashItems from '../hooks/useStashItems';
-import { Item as ItemType } from '../types';
 import {
-  addSeconds,
-  intervalToDuration,
-  formatDuration,
-  interval
-} from 'date-fns';
+  FilterForm,
+  ItemRarity,
+  ItemType as ItemTypes,
+  Item as ItemType
+} from '../types';
+import { buildItemText } from '../utils';
 
 export default function Stashes() {
+  const { values, handleChange, handleSubmit, errors } = useFormik<FilterForm>({
+    initialValues: {
+      rarity: undefined,
+      type: undefined
+    },
+    onSubmit: () => {}
+  });
   const [query, setQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
   const { selectedLeague } = useAppContext();
@@ -39,8 +53,9 @@ export default function Stashes() {
     selectedLeague?.id,
     data?.stashes
   );
-  const doneFetching = queries.every(
-    (query) => query.isFetched && !query.isRefetching
+  const doneFetching = useMemo(
+    () => queries.every((query) => query.isFetched && !query.isRefetching),
+    [queries]
   );
   const handleRefetchClick = useCallback(
     () => queries.forEach((query) => query.refetch()),
@@ -64,11 +79,7 @@ export default function Stashes() {
       }
 
       for (const item of query.data.stash.items) {
-        const slug = `${item.name} ${item.typeLine}
-${item.implicitMods?.join('\n')}
-${item.explicitMods?.join('\n')}
-${item.craftedMods?.join('\n')}
-`;
+        const slug = buildItemText(item);
 
         if (queryMatcher.test(slug)) {
           items.push(item);
@@ -88,11 +99,21 @@ ${item.craftedMods?.join('\n')}
     },
     [handleSearchClick]
   );
-  const fetchEstimate = useMemo(
-    () =>
+  const fetchEstimate = useMemo(() => {
+    const time =
       queries.filter((query) => !query.isFetched || query.isRefetching).length *
-      (requestTime / 1e3),
-    [requestTime, queries]
+      (requestTime / 1e3);
+
+    return (
+      formatDuration(
+        intervalToDuration(interval(new Date(), addSeconds(new Date(), time)))
+      ) || 'Unknown'
+    );
+  }, [requestTime, queries]);
+  const fetched = useMemo(
+    () =>
+      queries.filter((query) => query.isFetched && !query.isRefetching).length,
+    [queries]
   );
 
   return (
@@ -105,17 +126,43 @@ ${item.craftedMods?.join('\n')}
           <Button variant="danger" onClick={handleRefetchClick}>
             Refetch
           </Button>
-          <InputGroup className="my-4">
-            <InputGroup.Text>Query</InputGroup.Text>
-            <Form.Control
-              type="text"
-              name="query"
-              onKeyDown={handleKeyDown}
-              value={query}
-              onChange={handleQueryChange}
-            />
-            <Button onClick={handleSearchClick}>Search</Button>
-          </InputGroup>
+          <Form>
+            <Form.Group>
+              <Form.Label>Rarity:</Form.Label>
+              <Form.Select name="quality" onChange={handleChange}>
+                <option>Any</option>
+                {Object.values(ItemRarity).map((rarity) => (
+                  <option key={rarity} value={rarity}>
+                    {rarity}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Item Type:</Form.Label>
+              <Form.Select name="type" onChange={handleChange}>
+                <option>Any</option>
+                {Object.entries(ItemTypes).map(([value, key]) => (
+                  <option key={key} value={value}>
+                    {key}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group>
+              <InputGroup className="my-4">
+                <InputGroup.Text>Query</InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  name="query"
+                  onKeyDown={handleKeyDown}
+                  value={query}
+                  onChange={handleQueryChange}
+                />
+                <Button onClick={handleSearchClick}>Search</Button>
+              </InputGroup>
+            </Form.Group>
+          </Form>
           <Container fluid>
             <Row>
               {filteredItems.map((item) => (
@@ -128,7 +175,7 @@ ${item.craftedMods?.join('\n')}
         <Fragment>
           <Row>
             <Col xs={12} sm={6}>
-              <h4>Fetching stash tabs&hellip;</h4>
+              <h4>Fetching {queries.length} stash tabs&hellip;</h4>
             </Col>
             <Col xs={12} sm={6} className="text-end">
               <Spinner className="text-center" />
@@ -136,21 +183,8 @@ ${item.craftedMods?.join('\n')}
           </Row>
           <Row>
             <Col xs={12}>
-              Approximate time remaining:{' '}
-              {formatDuration(
-                intervalToDuration(
-                  interval(new Date(), addSeconds(new Date(), fetchEstimate))
-                )
-              ) || 'Unknown'}
-              <ProgressBar
-                min={1}
-                now={
-                  queries.filter(
-                    (query) => query.isFetched && !query.isRefetching
-                  ).length
-                }
-                max={queries.length}
-              />
+              Approximate time remaining: {fetchEstimate}
+              <ProgressBar min={1} now={fetched} max={queries.length} />
             </Col>
           </Row>
         </Fragment>

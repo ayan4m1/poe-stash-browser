@@ -38,19 +38,20 @@ export default function useStashItems(league?: string, stashes?: StashTab[]) {
       queries:
         stashes?.map((stash) => ({
           queryKey: ['account', league, 'stash', stash.id],
-          enabled: () => Boolean(initialized && limiter),
+          enabled: Boolean(initialized && limiter),
           queryFn: () =>
             limiter?.schedule(() =>
               fetch(`${baseApiUrl}stash/${league}/${stash.id}`, {
                 headers: {
                   Authorization: `Bearer ${token}`
                 }
-              }).then((data) => {
-                const result = data.json() as unknown as StashResponse;
+              }).then(async (data) => {
+                const result = (await data.json()) as unknown as StashResponse;
 
-                result.stash.items?.forEach(
-                  (item) => (item.stashTab = result.stash)
-                );
+                result.stash.items = result.stash.items?.map((item) => ({
+                  ...item,
+                  stashTab: result.stash.name
+                }));
 
                 return result;
               })

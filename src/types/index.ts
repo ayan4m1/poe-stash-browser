@@ -55,6 +55,24 @@ export enum ItemFrameType {
   Breach
 }
 
+export enum ItemType {
+  TwoHandedAxe = 'Two Handed Axe',
+  OneHandedAxe = 'One Handed Axe',
+  TwoHandedSword = 'Two Handed Sword',
+  OneHandedSword = 'One Handed Sword',
+  Staff = 'Staff',
+  Mace = 'Mace',
+  Dagger = 'Dagger',
+  Wand = 'Wand',
+  Shield = 'Shield',
+  Belt = 'Belt',
+  Boots = 'Boots',
+  Gloves = 'Gloves',
+  Chest = 'Chest',
+  Amulet = 'Amulet',
+  Ring = 'Ring'
+}
+
 export enum ItemColor {
   Red = 'S',
   Green = 'D',
@@ -62,8 +80,18 @@ export enum ItemColor {
   White = 'G'
 }
 
+export type ItemProperty = {
+  name: string;
+  values: [string, number][];
+  displayMode?: number;
+  progress?: number;
+  type?: number;
+  suffix?: string;
+  icon?: string;
+};
+
 export type Item = {
-  stashTab?: StashTab;
+  stashTab?: string;
   verified: boolean;
   w: number;
   h: number;
@@ -103,6 +131,11 @@ export type Item = {
   corrupted?: true;
   unmodifiable?: true;
   unmodifiableExceptChaos?: true;
+  properties?: ItemProperty[];
+  notableProperties?: ItemProperty[];
+  requirements?: ItemProperty[];
+  additionalProperties?: ItemProperty[];
+  nextLevelRequirements?: ItemProperty[];
   talismanTier?: number;
   rewards: {
     label: string;
@@ -196,4 +229,9 @@ export type StashesResponse = {
 
 export type StashResponse = {
   stash: StashTab;
+};
+
+export type FilterForm = {
+  rarity?: ItemRarity;
+  type?: string;
 };
