@@ -13,7 +13,8 @@ import { rendererConfig } from './webpack.renderer.config';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: false,
-    icon: './src/images/icon'
+    icon: './src/images/icon',
+    executableName: 'poe-stash-browser'
   },
   rebuildConfig: {},
   makers: [
