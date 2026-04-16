@@ -42,7 +42,8 @@ const config: ForgeConfig = {
           owner: 'ayan4m1',
           name: 'poe-stash-browser'
         },
-        generateReleaseNotes: true
+        generateReleaseNotes: true,
+        draft: false
       }
     }
   ],
