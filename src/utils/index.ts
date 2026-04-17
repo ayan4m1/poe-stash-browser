@@ -28,6 +28,22 @@ export const parseRateLimitRule = (rule: string) => {
 export const buildItemText = (item: Item) => {
   const lines = [`${item.name} ${item.typeLine}`];
 
+  for (const property of [
+    ...(item.properties?.length ? (item.properties as ItemProperty[]) : []),
+    ...(item.notableProperties?.length
+      ? (item.notableProperties as ItemProperty[])
+      : []),
+    ...(item.additionalProperties?.length
+      ? (item.additionalProperties as ItemProperty[])
+      : [])
+  ]) {
+    lines.push(interpolateProperties(property));
+  }
+  for (const requirement of item.requirements?.length
+    ? (item.requirements as ItemProperty[])
+    : []) {
+    lines.push(interpolateProperties(requirement, true));
+  }
   lines.push(item.implicitMods?.join('\n') ?? '');
   lines.push(item.explicitMods?.join('\n') ?? '');
   lines.push(item.craftedMods?.join('\n') ?? '');
