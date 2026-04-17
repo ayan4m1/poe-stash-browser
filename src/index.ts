@@ -16,6 +16,8 @@ const createWindow = () => {
     height: 600,
     width: 800,
     autoHideMenuBar: true,
+    darkTheme: true,
+    backgroundColor: '#262323',
     icon: './src/images/icon.png',
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY
