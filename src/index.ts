@@ -25,6 +25,20 @@ const createWindow = () => {
   mainWindow.maximize();
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
+  // In production, no dev server runs on localhost:3000, so OAuth redirects
+  // would fail with connection refused. Intercept the navigation and load
+  // the bundled file:// URL with query params intact so the PKCE library
+  // can extract the auth code.
+  if (process.env.NODE_ENV !== 'development') {
+    mainWindow.webContents.on('will-navigate', (event, url) => {
+      if (url.startsWith('http://localhost:3000/')) {
+        event.preventDefault();
+        const { search, hash } = new URL(url);
+        mainWindow.loadURL(`${MAIN_WINDOW_WEBPACK_ENTRY}${search}${hash}`);
+      }
+    });
+  }
+
   // Patch CORS headers from GGG
   session.defaultSession.webRequest.onHeadersReceived(
     { urls: ['*://www.pathofexile.com/*'] },
