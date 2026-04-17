@@ -68,7 +68,7 @@ export enum ItemType {
   Belt = 'Belt',
   Boots = 'Boots',
   Gloves = 'Gloves',
-  Chest = 'Chest',
+  Armor = 'Armour',
   Amulet = 'Amulet',
   Ring = 'Ring'
 }
