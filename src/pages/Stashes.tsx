@@ -58,57 +58,64 @@ export default function Stashes() {
     (e: ChangeEvent) => setQuery((e.target as HTMLFormElement).value),
     []
   );
-  const { values, handleChange, handleSubmit } = useFormik<FilterForm>({
-    initialValues: {
-      rarity: undefined,
-      type: undefined
-    },
-    onSubmit: useCallback(
-      ({ rarity, type }) => {
-        if (!doneFetching) {
-          return;
-        }
-
-        const queryMatcher = new RegExp(query, 'i');
-        const items: ItemType[] = [];
-
-        for (const query of queries) {
-          if (!query?.data?.stash?.items?.length) {
-            continue;
+  const { values, handleChange, handleSubmit, setFieldValue } =
+    useFormik<FilterForm>({
+      initialValues: {
+        rarity: undefined,
+        type: undefined
+      },
+      onSubmit: useCallback(
+        ({ rarity, type }) => {
+          if (!doneFetching) {
+            return;
           }
 
-          for (const item of query.data.stash.items) {
-            const slug = buildItemText(item);
+          const queryMatcher = new RegExp(query, 'i');
+          const items: ItemType[] = [];
 
-            let valid = queryMatcher.test(slug);
-
-            console.dir(rarity);
-
-            if (rarity) {
-              valid = item.rarity === rarity;
+          for (const query of queries) {
+            if (!query?.data?.stash?.items?.length) {
+              continue;
             }
 
-            if (type) {
-              if (!item.properties?.length) {
-                valid = false;
-              } else {
-                const { name } = item.properties[0];
+            for (const item of query.data.stash.items) {
+              const slug = buildItemText(item);
 
-                valid = name === type;
+              let valid = queryMatcher.test(slug);
+
+              if (rarity) {
+                valid = item.rarity === rarity;
               }
-            }
 
-            if (valid) {
+              if (!valid) {
+                continue;
+              }
+
+              if (type) {
+                if (!item.properties?.length) {
+                  valid = false;
+                } else {
+                  const { name } = item.properties[0];
+
+                  console.dir(`${name} == ${type}`);
+
+                  valid = name === type;
+                }
+              }
+
+              if (!valid) {
+                continue;
+              }
+
               items.push(item);
             }
           }
-        }
 
-        setFilteredItems(items);
-      },
-      [doneFetching, queries, query]
-    )
-  });
+          setFilteredItems(items);
+        },
+        [doneFetching, queries, query]
+      )
+    });
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.code !== 'Enter') {
@@ -135,6 +142,18 @@ export default function Stashes() {
       queries.filter((query) => query.isFetched && !query.isRefetching).length,
     [queries]
   );
+  const handleSelectChange = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      const { value, name } = event.target;
+
+      if (value === 'any') {
+        setFieldValue(name, undefined);
+      } else {
+        handleChange(event);
+      }
+    },
+    [handleChange, setFieldValue]
+  );
 
   return (
     <Layout>
@@ -151,10 +170,10 @@ export default function Stashes() {
               <Form.Label>Rarity:</Form.Label>
               <Form.Select
                 name="rarity"
-                onChange={handleChange}
+                onChange={handleSelectChange}
                 value={values.rarity}
               >
-                <option>Any</option>
+                <option value="any">Any</option>
                 {Object.values(ItemRarity).map((rarity) => (
                   <option key={rarity} value={rarity}>
                     {rarity}
@@ -166,12 +185,12 @@ export default function Stashes() {
               <Form.Label>Item Type:</Form.Label>
               <Form.Select
                 name="type"
-                onChange={handleChange}
+                onChange={handleSelectChange}
                 value={values.type}
               >
-                <option>Any</option>
-                {Object.entries(ItemTypes).map(([value, key]) => (
-                  <option key={key} value={value}>
+                <option value="any">Any</option>
+                {Object.entries(ItemTypes).map(([, key]) => (
+                  <option key={key} value={key}>
                     {key}
                   </option>
                 ))}
@@ -203,7 +222,15 @@ export default function Stashes() {
         <Fragment>
           <Row>
             <Col xs={12} sm={6}>
-              <h4>Fetching {queries.length} stash tabs&hellip;</h4>
+              <h4>
+                Fetching{' '}
+                {
+                  queries.filter(
+                    (query) => !query.isFetched || query.isRefetching
+                  ).length
+                }{' '}
+                stash tabs&hellip;
+              </h4>
             </Col>
             <Col xs={12} sm={6} className="text-end">
               <Spinner className="text-center" />
