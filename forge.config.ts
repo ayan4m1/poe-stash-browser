@@ -52,7 +52,7 @@ const config: ForgeConfig = {
     new WebpackPlugin({
       mainConfig,
       devContentSecurityPolicy:
-        "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: fonts.googleapis.com fonts.gstatic.com www.pathofexile.com api.pathofexile.com web.poecdn.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:",
+        "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: www.pathofexile.com api.pathofexile.com web.poecdn.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:;font-src 'self' 'unsafe-inline' https:;style-src 'self' 'unsafe-inline' https:;style-src-elem 'self' 'unsafe-inline' https:",
       renderer: {
         config: rendererConfig,
         entryPoints: [
