@@ -30,7 +30,7 @@ const createWindow = () => {
   // the bundled file:// URL with query params intact so the PKCE library
   // can extract the auth code.
   if (process.env.NODE_ENV !== 'development') {
-    mainWindow.webContents.on('will-navigate', (event, url) => {
+    mainWindow.webContents.on('will-redirect', (event, url) => {
       if (url.startsWith('http://localhost:3000/')) {
         event.preventDefault();
         const { search, hash } = new URL(url);
