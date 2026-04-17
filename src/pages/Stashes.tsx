@@ -97,8 +97,6 @@ export default function Stashes() {
                 } else {
                   const { name } = item.properties[0];
 
-                  console.dir(`${name} == ${type}`);
-
                   valid = name === type;
                 }
               }
