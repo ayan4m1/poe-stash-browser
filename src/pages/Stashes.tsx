@@ -1,12 +1,4 @@
-import { useFormik } from 'formik';
-import {
-  ChangeEvent,
-  Fragment,
-  KeyboardEvent,
-  useCallback,
-  useMemo,
-  useState
-} from 'react';
+import { Fragment, useCallback, useMemo, useState } from 'react';
 import {
   addSeconds,
   intervalToDuration,
@@ -17,28 +9,23 @@ import {
   Button,
   Col,
   Container,
-  Form,
-  InputGroup,
-  ProgressBar,
   Row,
-  Spinner
+  Spinner,
+  ProgressBar
 } from 'react-bootstrap';
+import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import FilterForm from '../components/FilterForm';
 import Item from '../components/Item';
 import Layout from '../components/Layout';
 import useStashes from '../hooks/useStashes';
 import useAppContext from '../hooks/useAppContext';
 import useStashItems from '../hooks/useStashItems';
-import {
-  FilterForm,
-  ItemRarity,
-  ItemType as ItemTypes,
-  Item as ItemType
-} from '../types';
-import { buildItemText } from '../utils';
+import { FilterForm as FilterFormType, Item as ItemType } from '../types';
+import { itemMatchesFilter } from '../utils';
 
 export default function Stashes() {
-  const [query, setQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
   const { selectedLeague } = useAppContext();
   const { data } = useStashes(selectedLeague?.id);
@@ -54,84 +41,45 @@ export default function Stashes() {
     () => queries.forEach((query) => query.refetch()),
     [queries]
   );
-  const handleQueryChange = useCallback(
-    (e: ChangeEvent) => setQuery((e.target as HTMLFormElement).value),
-    []
-  );
-  const { values, handleChange, handleSubmit, setFieldValue } =
-    useFormik<FilterForm>({
-      initialValues: {
-        rarity: undefined,
-        type: undefined
-      },
-      onSubmit: useCallback(
-        ({ rarity, type }) => {
-          if (!doneFetching) {
-            return;
-          }
-
-          const queryMatcher = new RegExp(query, 'i');
-          const items: ItemType[] = [];
-
-          for (const query of queries) {
-            if (!query?.data?.stash?.items?.length) {
-              continue;
-            }
-
-            for (const item of query.data.stash.items) {
-              const slug = buildItemText(item);
-
-              let valid = queryMatcher.test(slug);
-
-              if (rarity) {
-                valid = item.rarity === rarity;
-              }
-
-              if (!valid) {
-                continue;
-              }
-
-              if (type) {
-                if (!item.properties?.length) {
-                  valid = false;
-                } else {
-                  const { name } = item.properties[0];
-
-                  valid = name === type;
-                }
-              }
-
-              if (!valid) {
-                continue;
-              }
-
-              items.push(item);
-            }
-          }
-
-          setFilteredItems(items);
-        },
-        [doneFetching, queries, query]
-      )
-    });
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.code !== 'Enter') {
+  const handleFilter = useCallback(
+    (values: FilterFormType) => {
+      if (!doneFetching) {
         return;
       }
 
-      handleSubmit();
+      const items: ItemType[] = [];
+
+      for (const query of queries) {
+        if (!query?.data?.stash?.items?.length) {
+          continue;
+        }
+
+        for (const item of query.data.stash.items) {
+          if (itemMatchesFilter(item, values)) {
+            items.push(item);
+          }
+        }
+      }
+
+      setFilteredItems(items);
     },
-    [handleSubmit]
+    [doneFetching, queries]
   );
   const fetchEstimate = useMemo(() => {
-    const time =
-      queries.filter((query) => !query.isFetched || query.isRefetching).length *
-      (requestTime / 1e3);
+    const tabs = queries.filter(
+      (query) => !query.isFetched || query.isRefetching
+    ).length;
+    const tabTime = tabs * (requestTime / 1e3);
+    const rateLimiterTime = Math.floor(tabs / 3e1) * 3e2; // add 300 seconds for every 30 tabs
 
     return (
       formatDuration(
-        intervalToDuration(interval(new Date(), addSeconds(new Date(), time)))
+        intervalToDuration(
+          interval(
+            new Date(),
+            addSeconds(new Date(), tabTime + rateLimiterTime)
+          )
+        )
       ) || 'Unknown'
     );
   }, [requestTime, queries]);
@@ -139,18 +87,6 @@ export default function Stashes() {
     () =>
       queries.filter((query) => query.isFetched && !query.isRefetching).length,
     [queries]
-  );
-  const handleSelectChange = useCallback(
-    (event: ChangeEvent<HTMLSelectElement>) => {
-      const { value, name } = event.target;
-
-      if (value === 'any') {
-        setFieldValue(name, undefined);
-      } else {
-        handleChange(event);
-      }
-    },
-    [handleChange, setFieldValue]
   );
 
   return (
@@ -161,58 +97,16 @@ export default function Stashes() {
       ) : doneFetching ? (
         <Fragment>
           <Button variant="danger" onClick={handleRefetchClick}>
-            Refetch
+            <FontAwesomeIcon icon={faRefresh} /> Refetch
           </Button>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group>
-              <Form.Label>Rarity:</Form.Label>
-              <Form.Select
-                name="rarity"
-                onChange={handleSelectChange}
-                value={values.rarity}
-              >
-                <option value="any">Any</option>
-                {Object.values(ItemRarity).map((rarity) => (
-                  <option key={rarity} value={rarity}>
-                    {rarity}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            <Form.Group>
-              <Form.Label>Item Type:</Form.Label>
-              <Form.Select
-                name="type"
-                onChange={handleSelectChange}
-                value={values.type}
-              >
-                <option value="any">Any</option>
-                {Object.entries(ItemTypes).map(([, key]) => (
-                  <option key={key} value={key}>
-                    {key}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-            <Form.Group>
-              <InputGroup className="my-4">
-                <InputGroup.Text>Query</InputGroup.Text>
-                <Form.Control
-                  type="text"
-                  name="query"
-                  onKeyDown={handleKeyDown}
-                  value={query}
-                  onChange={handleQueryChange}
-                />
-                <Button type="submit">Search</Button>
-              </InputGroup>
-            </Form.Group>
-          </Form>
+          <FilterForm onFilter={handleFilter} />
           <Container fluid>
             <Row>
-              {filteredItems.map((item) => (
-                <Item key={item.id} item={item} />
-              ))}
+              {filteredItems.length ? (
+                filteredItems.map((item) => <Item key={item.id} item={item} />)
+              ) : (
+                <Col>No results.</Col>
+              )}
             </Row>
           </Container>
         </Fragment>

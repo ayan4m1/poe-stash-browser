@@ -1,6 +1,13 @@
 import { Fragment, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Container, Form, Nav, Navbar } from 'react-bootstrap';
+import {
+  Button,
+  Container,
+  Form,
+  InputGroup,
+  Nav,
+  Navbar
+} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faDoorClosed,
@@ -48,18 +55,18 @@ export default function Heading() {
           {Boolean(data) && (
             <Fragment>
               <Nav.Item>
-                <Form.Select ref={selectRef}>
-                  {data.leagues.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.name}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Nav.Item>
-              <Nav.Item>
-                <Button onClick={handleLeagueChange} variant="success">
-                  Select
-                </Button>
+                <InputGroup>
+                  <Form.Select ref={selectRef}>
+                    {data.leagues.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Button onClick={handleLeagueChange} variant="success">
+                    Select
+                  </Button>
+                </InputGroup>
               </Nav.Item>
             </Fragment>
           )}

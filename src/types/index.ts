@@ -55,6 +55,23 @@ export enum ItemFrameType {
   Breach
 }
 
+export const ItemFrameTypeNames = {
+  [ItemFrameType.Normal]: 'Normal',
+  [ItemFrameType.Magic]: 'Magic',
+  [ItemFrameType.Rare]: 'Rare',
+  [ItemFrameType.Unique]: 'Unique',
+  [ItemFrameType.Gem]: 'Gem',
+  [ItemFrameType.Currency]: 'Currency',
+  [ItemFrameType.DivinationCard]: 'Div Card',
+  [ItemFrameType.Quest]: 'Quest',
+  [ItemFrameType.Prophecy]: 'Prophecy',
+  [ItemFrameType.Foil]: 'Foil',
+  [ItemFrameType.SupporterFoil]: 'Supporter Foil',
+  [ItemFrameType.Necropolis]: 'Necropolis',
+  [ItemFrameType.Gold]: 'Gold',
+  [ItemFrameType.Breach]: 'Breach'
+};
+
 export enum ItemType {
   TwoHandedAxe = 'Two Handed Axe',
   OneHandedAxe = 'One Handed Axe',
@@ -231,7 +248,17 @@ export type StashResponse = {
   stash: StashTab;
 };
 
+export type BooleanMode = 'and' | 'or' | 'not';
+
+export type FilterQuery = {
+  id: string;
+  value: string;
+  mode?: BooleanMode;
+};
+
 export type FilterForm = {
   rarity?: ItemRarity;
-  type?: string;
+  itemType?: ItemType;
+  frameType?: ItemFrameType;
+  queries: FilterQuery[];
 };

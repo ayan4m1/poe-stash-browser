@@ -1,6 +1,6 @@
 import { TAuthConfig } from 'react-oauth2-code-pkce';
 
-import { Item, ItemProperty } from '../types';
+import { Item, ItemProperty, FilterForm, FilterQuery } from '../types';
 
 export const baseAuthUrl = 'https://www.pathofexile.com/';
 export const baseApiUrl = 'https://api.pathofexile.com/';
@@ -66,6 +66,72 @@ export const interpolateProperties = (
     }
 
     result = result.replace(token, value);
+  }
+
+  return result;
+};
+
+type CompiledQuery = {
+  regex: RegExp | null;
+  mode: FilterQuery['mode'];
+};
+
+const compileQueries = (queries: FilterQuery[]): CompiledQuery[] =>
+  queries
+    .filter((q) => q.value.trim() !== '')
+    .map((q) => {
+      try {
+        return { regex: new RegExp(q.value, 'i'), mode: q.mode };
+      } catch {
+        return { regex: null, mode: q.mode };
+      }
+    });
+
+export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
+  const compiled = compileQueries(filter.queries);
+  const slug = buildItemText(item);
+
+  const baseQueries = compiled.filter((q) => q.mode === undefined);
+  const andQueries = compiled.filter((q) => q.mode === 'and');
+  const orQueries = compiled.filter((q) => q.mode === 'or');
+  const notQueries = compiled.filter((q) => q.mode === 'not');
+
+  // Base + AND + NOT group
+  let baseResult = true;
+  if (baseQueries.length > 0) {
+    baseResult = baseQueries.every((q) => q.regex?.test(slug) ?? false);
+  }
+  if (baseResult && andQueries.length > 0) {
+    baseResult = andQueries.every((q) => q.regex?.test(slug) ?? false);
+  }
+  if (baseResult && notQueries.length > 0) {
+    baseResult = notQueries.every((q) => !(q.regex?.test(slug) ?? false));
+  }
+
+  // OR group is an independent alternative path
+  const orResult =
+    orQueries.length > 0
+      ? orQueries.some((q) => q.regex?.test(slug) ?? false)
+      : false;
+
+  // Final: passes if (base group passes) OR (any OR query matches)
+  const hasOr = orQueries.length > 0;
+  let result = hasOr ? baseResult || orResult : baseResult;
+
+  if (filter.rarity) {
+    result = result && item.rarity === filter.rarity;
+  }
+
+  if (filter.itemType) {
+    if (!item.properties?.length) {
+      result = false;
+    } else {
+      result = result && item.properties[0].name === filter.itemType;
+    }
+  }
+
+  if (filter.frameType && filter.frameType != item.frameType) {
+    result = false;
   }
 
   return result;
