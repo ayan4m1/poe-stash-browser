@@ -8,7 +8,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import FilterForm from '../components/FilterForm';
-import Item from '../components/Item';
+import GridItem from '../components/GridItem';
 import Layout from '../components/Layout';
 import useStashes from '../hooks/useStashes';
 import useAppContext from '../hooks/useAppContext';
@@ -19,6 +19,7 @@ import {
   Item as ItemType
 } from '../types';
 import { itemMatchesFilter } from '../utils';
+import ListItem from '../components/ListItem';
 
 export default function Stashes() {
   const [displayMode, setDisplayMode] = useState(DisplayMode.Grid);
@@ -99,7 +100,13 @@ export default function Stashes() {
           </Row>
           <Row>
             {filteredItems.length ? (
-              filteredItems.map((item) => <Item key={item.id} item={item} />)
+              filteredItems.map((item) =>
+                displayMode === DisplayMode.Grid ? (
+                  <GridItem key={item.id} item={item} />
+                ) : (
+                  <ListItem key={item.id} item={item} />
+                )
+              )
             ) : (
               <Col className="text-center">No results</Col>
             )}

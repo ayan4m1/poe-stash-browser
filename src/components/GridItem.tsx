@@ -15,7 +15,7 @@ interface IProps {
   item: Item;
 }
 
-export default function Item({ item }: IProps) {
+export default function GridItem({ item }: IProps) {
   const color = useMemo(() => {
     switch (item.rarity) {
       case ItemRarity.Magic:
