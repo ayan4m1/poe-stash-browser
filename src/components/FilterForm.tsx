@@ -8,13 +8,15 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 
 import FilterQueryRow from './FilterQueryRow';
+import FilterRangeQueryRow from './FilterRangeQueryRow';
 import {
   BooleanMode,
   FilterForm as FilterFormType,
-  ItemFrameType,
+  FilterQueryType,
   ItemFrameTypeNames,
   ItemRarity,
-  ItemType as ItemTypes
+  ItemType as ItemTypes,
+  RangeOperator
 } from '../types';
 
 interface FilterFormProps {
@@ -22,17 +24,23 @@ interface FilterFormProps {
 }
 
 const validate = (values: FilterFormType) => {
-  const errors: { queries?: Array<{ value?: string }> } = {};
-  const queryErrors: Array<{ value?: string }> = [];
+  const errors: { queries?: Array<Record<string, string>> } = {};
+  const queryErrors: Array<Record<string, string>> = [];
   let hasError = false;
 
   for (const q of values.queries) {
-    const qError: { value?: string } = {};
+    const qError: Record<string, string> = {};
     if (q.value.trim() !== '') {
       try {
         new RegExp(q.value);
       } catch {
         qError.value = 'Invalid regex pattern';
+        hasError = true;
+      }
+    }
+    if (q.type === 'range') {
+      if (q.numberValue !== undefined && !isFinite(q.numberValue)) {
+        qError.numberValue = 'Invalid number';
         hasError = true;
       }
     }
@@ -46,7 +54,7 @@ const validate = (values: FilterFormType) => {
   return errors;
 };
 
-export default function FilterForm({ onFilter }: FilterFormProps) {
+export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
   const { values, errors, handleChange, handleSubmit, setFieldValue } =
     useFormik<FilterFormType>({
       initialValues: {
@@ -56,7 +64,7 @@ export default function FilterForm({ onFilter }: FilterFormProps) {
         queries: [{ id: crypto.randomUUID(), value: '' }]
       },
       validate,
-      onSubmit: (values) => onFilter(values)
+      onSubmit
     });
 
   const handleAddQuery = useCallback(() => {
@@ -66,11 +74,45 @@ export default function FilterForm({ onFilter }: FilterFormProps) {
     ]);
   }, [values.queries, setFieldValue]);
 
+  const handleAddRangeQuery = useCallback(() => {
+    setFieldValue('queries', [
+      ...values.queries,
+      {
+        id: crypto.randomUUID(),
+        type: 'range' as FilterQueryType,
+        value: '',
+        operator: '>' as RangeOperator,
+        numberValue: 0,
+        mode: 'and' as BooleanMode
+      }
+    ]);
+  }, [values.queries, setFieldValue]);
+
   const handleValueChange = useCallback(
     (id: string, value: string) => {
       const index = values.queries.findIndex((q) => q.id === id);
       if (index >= 0) {
         setFieldValue(`queries.${index}.value`, value);
+      }
+    },
+    [values.queries, setFieldValue]
+  );
+
+  const handleOperatorChange = useCallback(
+    (id: string, operator: RangeOperator) => {
+      const index = values.queries.findIndex((q) => q.id === id);
+      if (index >= 0) {
+        setFieldValue(`queries.${index}.operator`, operator);
+      }
+    },
+    [values.queries, setFieldValue]
+  );
+
+  const handleNumberValueChange = useCallback(
+    (id: string, value: number) => {
+      const index = values.queries.findIndex((q) => q.id === id);
+      if (index >= 0) {
+        setFieldValue(`queries.${index}.numberValue`, value);
       }
     },
     [values.queries, setFieldValue]
@@ -117,7 +159,9 @@ export default function FilterForm({ onFilter }: FilterFormProps) {
     [handleChange, setFieldValue]
   );
 
-  const queryErrors = errors?.queries as Array<{ value?: string }> | undefined;
+  const queryErrors = errors?.queries as
+    | Array<Record<string, string>>
+    | undefined;
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -166,25 +210,45 @@ export default function FilterForm({ onFilter }: FilterFormProps) {
           ))}
         </Form.Select>
       </Form.Group>
-      <Form.Group className="my-4">
-        {values.queries.map((query, index) => (
-          <FilterQueryRow
-            key={query.id}
-            query={query}
-            isFirst={index === 0}
-            canRemove={values.queries.length > 1}
-            error={queryErrors?.[index]?.value}
-            onValueChange={handleValueChange}
-            onModeChange={handleModeChange}
-            onRemove={handleRemove}
-            onKeyDown={handleKeyDown}
-          />
-        ))}
+      <Form.Group>
+        <Form.Label>Queries:</Form.Label>
+        {values.queries.map((query, index) =>
+          query.type === 'range' ? (
+            <FilterRangeQueryRow
+              key={query.id}
+              query={query}
+              isFirst={index === 0}
+              error={queryErrors?.[index]?.value}
+              onValueChange={handleValueChange}
+              onOperatorChange={handleOperatorChange}
+              onNumberValueChange={handleNumberValueChange}
+              onModeChange={handleModeChange}
+              onRemove={handleRemove}
+              onKeyDown={handleKeyDown}
+            />
+          ) : (
+            <FilterQueryRow
+              key={query.id}
+              query={query}
+              isFirst={index === 0}
+              error={queryErrors?.[index]?.value}
+              onValueChange={handleValueChange}
+              onModeChange={handleModeChange}
+              onRemove={handleRemove}
+              onKeyDown={handleKeyDown}
+            />
+          )
+        )}
+      </Form.Group>
+      <Form.Group className="my-4 text-end">
         <Button variant="success" size="sm" onClick={handleAddQuery}>
           <FontAwesomeIcon icon={faPlusCircle} /> Add Query
+        </Button>{' '}
+        <Button variant="info" size="sm" onClick={handleAddRangeQuery}>
+          <FontAwesomeIcon icon={faPlusCircle} /> Add Range Query
         </Button>
       </Form.Group>
-      <Form.Group>
+      <Form.Group className="text-end">
         <Button className="mb-4" type="submit">
           <FontAwesomeIcon icon={faMagnifyingGlass} /> Search
         </Button>

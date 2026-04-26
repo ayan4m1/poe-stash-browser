@@ -250,10 +250,17 @@ export type StashResponse = {
 
 export type BooleanMode = 'and' | 'or' | 'not';
 
+export type FilterQueryType = 'text' | 'range';
+
+export type RangeOperator = '<' | '<=' | '>' | '>=' | '=';
+
 export type FilterQuery = {
   id: string;
   value: string;
   mode?: BooleanMode;
+  type?: FilterQueryType;
+  operator?: RangeOperator;
+  numberValue?: number;
 };
 
 export type FilterForm = {
@@ -262,3 +269,8 @@ export type FilterForm = {
   frameType?: ItemFrameType;
   queries: FilterQuery[];
 };
+
+export enum DisplayMode {
+  Grid = 'grid',
+  List = 'list'
+}

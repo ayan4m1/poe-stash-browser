@@ -6,7 +6,9 @@ import { parseRateLimitRule } from '../utils';
 
 export default function useRateLimiters() {
   const [limiter, setLimiter] = useState<Bottleneck>();
-  const [requestTime, setRequestTime] = useState(0);
+  const [minTime, setMinTime] = useState(0);
+  const [remainingRequests, setRemainingRequests] = useState(0);
+  const [maxRequests, setMaxRequests] = useState(0);
   const setupRateLimiters = useCallback((headers: Headers) => {
     const ruleNames = headers.get('X-Rate-Limit-Rules');
 
@@ -70,8 +72,26 @@ export default function useRateLimiters() {
         reservoirRefreshInterval: ruleInterval
       })
     );
-    setRequestTime(minTime);
+    setRemainingRequests(remainingRequests);
+    setMaxRequests(maxRequests);
+    setMinTime(minTime);
   }, []);
+  const getTimeEstimate = useCallback(
+    (queryCount: number) => {
+      const pauses = Math.ceil(
+        Math.max(0, queryCount - remainingRequests) / maxRequests
+      );
+      const pauseTime = pauses * 3e2;
+      const fetchTime = queryCount * (minTime / 1e3);
 
-  return { limiter, requestTime, setupRateLimiters };
+      return pauseTime + fetchTime;
+    },
+    [maxRequests, remainingRequests, minTime]
+  );
+
+  return {
+    limiter,
+    setupRateLimiters,
+    getTimeEstimate
+  };
 }

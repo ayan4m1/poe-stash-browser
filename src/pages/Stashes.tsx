@@ -1,19 +1,10 @@
 import { Fragment, useCallback, useMemo, useState } from 'react';
+import { Button, Col, Row, Spinner, ProgressBar } from 'react-bootstrap';
 import {
-  addSeconds,
-  intervalToDuration,
-  formatDuration,
-  interval
-} from 'date-fns';
-import {
-  Button,
-  Col,
-  Container,
-  Row,
-  Spinner,
-  ProgressBar
-} from 'react-bootstrap';
-import { faRefresh } from '@fortawesome/free-solid-svg-icons';
+  faGridVertical,
+  faListDots,
+  faRefresh
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import FilterForm from '../components/FilterForm';
@@ -22,17 +13,19 @@ import Layout from '../components/Layout';
 import useStashes from '../hooks/useStashes';
 import useAppContext from '../hooks/useAppContext';
 import useStashItems from '../hooks/useStashItems';
-import { FilterForm as FilterFormType, Item as ItemType } from '../types';
+import {
+  DisplayMode,
+  FilterForm as FilterFormType,
+  Item as ItemType
+} from '../types';
 import { itemMatchesFilter } from '../utils';
 
 export default function Stashes() {
+  const [displayMode, setDisplayMode] = useState(DisplayMode.Grid);
   const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
   const { selectedLeague } = useAppContext();
   const { data } = useStashes(selectedLeague?.id);
-  const { queries, requestTime } = useStashItems(
-    selectedLeague?.id,
-    data?.stashes
-  );
+  const { queries } = useStashItems(selectedLeague?.id, data?.stashes);
   const doneFetching = useMemo(
     () => queries.every((query) => query.isFetched && !query.isRefetching),
     [queries]
@@ -65,28 +58,18 @@ export default function Stashes() {
     },
     [doneFetching, queries]
   );
-  const fetchEstimate = useMemo(() => {
-    const tabs = queries.filter(
-      (query) => !query.isFetched || query.isRefetching
-    ).length;
-    const tabTime = tabs * (requestTime / 1e3);
-    const rateLimiterTime = Math.floor(tabs / 3e1) * 3e2; // add 300 seconds for every 30 tabs
-
-    return (
-      formatDuration(
-        intervalToDuration(
-          interval(
-            new Date(),
-            addSeconds(new Date(), tabTime + rateLimiterTime)
-          )
-        )
-      ) || 'Unknown'
-    );
-  }, [requestTime, queries]);
   const fetched = useMemo(
     () =>
       queries.filter((query) => query.isFetched && !query.isRefetching).length,
     [queries]
+  );
+  const handleGridClick = useCallback(
+    () => setDisplayMode(DisplayMode.Grid),
+    []
+  );
+  const handleListClick = useCallback(
+    () => setDisplayMode(DisplayMode.List),
+    []
   );
 
   return (
@@ -96,19 +79,31 @@ export default function Stashes() {
         <p>Select a league first</p>
       ) : doneFetching ? (
         <Fragment>
-          <Button variant="danger" onClick={handleRefetchClick}>
-            <FontAwesomeIcon icon={faRefresh} /> Refetch
-          </Button>
+          <Row>
+            <Col className="text-end">
+              <Button variant="danger" onClick={handleRefetchClick}>
+                <FontAwesomeIcon icon={faRefresh} /> Refetch
+              </Button>
+            </Col>
+          </Row>
           <FilterForm onFilter={handleFilter} />
-          <Container fluid>
-            <Row>
-              {filteredItems.length ? (
-                filteredItems.map((item) => <Item key={item.id} item={item} />)
-              ) : (
-                <Col>No results.</Col>
-              )}
-            </Row>
-          </Container>
+          <Row className="mb-4">
+            <Col className="text-end">
+              <Button onClick={handleGridClick}>
+                <FontAwesomeIcon icon={faGridVertical} />
+              </Button>{' '}
+              <Button onClick={handleListClick}>
+                <FontAwesomeIcon icon={faListDots} />
+              </Button>
+            </Col>
+          </Row>
+          <Row>
+            {filteredItems.length ? (
+              filteredItems.map((item) => <Item key={item.id} item={item} />)
+            ) : (
+              <Col className="text-center">No results</Col>
+            )}
+          </Row>
         </Fragment>
       ) : (
         <Fragment>
@@ -130,7 +125,6 @@ export default function Stashes() {
           </Row>
           <Row>
             <Col xs={12}>
-              Approximate time remaining: {fetchEstimate}
               <ProgressBar min={1} now={fetched} max={queries.length} />
             </Col>
           </Row>

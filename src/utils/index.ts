@@ -1,6 +1,12 @@
 import { TAuthConfig } from 'react-oauth2-code-pkce';
 
-import { Item, ItemProperty, FilterForm, FilterQuery } from '../types';
+import {
+  Item,
+  ItemProperty,
+  FilterForm,
+  FilterQuery,
+  RangeOperator
+} from '../types';
 
 export const baseAuthUrl = 'https://www.pathofexile.com/';
 export const baseApiUrl = 'https://api.pathofexile.com/';
@@ -71,25 +77,107 @@ export const interpolateProperties = (
   return result;
 };
 
-type CompiledQuery = {
+const extractNumbers = (s: string): number[] => {
+  const matches = s.match(/[+-]?\d+(?:\.\d+)?/g);
+  return matches ? matches.map(Number) : [];
+};
+
+const compareRange = (
+  value: number,
+  op: RangeOperator,
+  threshold: number
+): boolean => {
+  switch (op) {
+    case '<':
+      return value < threshold;
+    case '<=':
+      return value <= threshold;
+    case '>':
+      return value > threshold;
+    case '>=':
+      return value >= threshold;
+    case '=':
+      return value === threshold;
+  }
+};
+
+type CompiledTextQuery = {
+  kind: 'text';
   regex: RegExp | null;
   mode: FilterQuery['mode'];
 };
 
+type CompiledRangeQuery = {
+  kind: 'range';
+  propertyRegex: RegExp | null;
+  operator: RangeOperator;
+  threshold: number;
+  mode: FilterQuery['mode'];
+};
+
+type CompiledQuery = CompiledTextQuery | CompiledRangeQuery;
+
 const compileQueries = (queries: FilterQuery[]): CompiledQuery[] =>
   queries
-    .filter((q) => q.value.trim() !== '')
+    .filter((q) => {
+      if (q.type === 'range') {
+        return q.value.trim() !== '';
+      }
+      return q.value.trim() !== '';
+    })
     .map((q) => {
+      if (q.type === 'range') {
+        try {
+          return {
+            kind: 'range' as const,
+            propertyRegex: new RegExp(q.value, 'i'),
+            operator: q.operator ?? '=',
+            threshold: q.numberValue ?? 0,
+            mode: q.mode
+          };
+        } catch {
+          return {
+            kind: 'range' as const,
+            propertyRegex: null,
+            operator: q.operator ?? '=',
+            threshold: q.numberValue ?? 0,
+            mode: q.mode
+          };
+        }
+      }
       try {
-        return { regex: new RegExp(q.value, 'i'), mode: q.mode };
+        return {
+          kind: 'text' as const,
+          regex: new RegExp(q.value, 'i'),
+          mode: q.mode
+        };
       } catch {
-        return { regex: null, mode: q.mode };
+        return { kind: 'text' as const, regex: null, mode: q.mode };
       }
     });
+
+const queryMatches = (
+  compiled: CompiledQuery,
+  slug: string,
+  lines?: string[]
+): boolean => {
+  if (compiled.kind === 'text') {
+    return compiled.regex?.test(slug) ?? false;
+  }
+  if (!compiled.propertyRegex || !lines) return false;
+  return lines.some((line) => {
+    if (!compiled.propertyRegex?.test(line)) return false;
+    return extractNumbers(line).some((num) =>
+      compareRange(num, compiled.operator, compiled.threshold)
+    );
+  });
+};
 
 export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
   const compiled = compileQueries(filter.queries);
   const slug = buildItemText(item);
+  const hasRangeQueries = compiled.some((q) => q.kind === 'range');
+  const lines = hasRangeQueries ? slug.split('\n') : undefined;
 
   const baseQueries = compiled.filter((q) => q.mode === undefined);
   const andQueries = compiled.filter((q) => q.mode === 'and');
@@ -99,19 +187,19 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
   // Base + AND + NOT group
   let baseResult = true;
   if (baseQueries.length > 0) {
-    baseResult = baseQueries.every((q) => q.regex?.test(slug) ?? false);
+    baseResult = baseQueries.every((q) => queryMatches(q, slug, lines));
   }
   if (baseResult && andQueries.length > 0) {
-    baseResult = andQueries.every((q) => q.regex?.test(slug) ?? false);
+    baseResult = andQueries.every((q) => queryMatches(q, slug, lines));
   }
   if (baseResult && notQueries.length > 0) {
-    baseResult = notQueries.every((q) => !(q.regex?.test(slug) ?? false));
+    baseResult = notQueries.every((q) => !queryMatches(q, slug, lines));
   }
 
   // OR group is an independent alternative path
   const orResult =
     orQueries.length > 0
-      ? orQueries.some((q) => q.regex?.test(slug) ?? false)
+      ? orQueries.some((q) => queryMatches(q, slug, lines))
       : false;
 
   // Final: passes if (base group passes) OR (any OR query matches)

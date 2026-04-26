@@ -8,7 +8,7 @@ import { baseApiUrl } from '../utils';
 
 export default function useStashItems(league?: string, stashes?: StashTab[]) {
   const [initialized, setInitialized] = useState(false);
-  const { limiter, requestTime, setupRateLimiters } = useRateLimiters();
+  const { limiter, setupRateLimiters } = useRateLimiters();
   const { token } = useAuthContext();
 
   useEffect(() => {
@@ -57,7 +57,6 @@ export default function useStashItems(league?: string, stashes?: StashTab[]) {
               })
             )
         })) ?? []
-    }),
-    requestTime
+    })
   };
 }
