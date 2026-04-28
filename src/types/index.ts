@@ -107,6 +107,12 @@ export type ItemProperty = {
   icon?: string;
 };
 
+export type ItemSocket = {
+  group: number;
+  attr: 'S' | 'I' | 'D';
+  sColour: 'R' | 'G' | 'B' | 'W' | 'A';
+};
+
 export type Item = {
   stashTab?: string;
   verified: boolean;
@@ -132,6 +138,7 @@ export type Item = {
   fractured?: true;
   synthesised?: true;
   socketedItems: Item[];
+  sockets?: ItemSocket[];
   name: string;
   typeLine: string;
   baseType: string;
@@ -267,6 +274,8 @@ export type FilterForm = {
   rarity?: ItemRarity;
   itemType?: ItemType;
   frameType?: ItemFrameType;
+  minSockets?: number;
+  minLinks?: number;
   queries: FilterQuery[];
 };
 

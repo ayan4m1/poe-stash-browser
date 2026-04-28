@@ -61,6 +61,8 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
         rarity: undefined,
         itemType: undefined,
         frameType: undefined,
+        minSockets: undefined,
+        minLinks: undefined,
         queries: [{ id: crypto.randomUUID(), value: '' }]
       },
       validate,
@@ -209,6 +211,28 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             </option>
           ))}
         </Form.Select>
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>Minimum Sockets:</Form.Label>
+        <Form.Control
+          type="number"
+          name="minSockets"
+          min={1}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          value={values.minSockets ?? ''}
+        />
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>Minimum Links:</Form.Label>
+        <Form.Control
+          type="number"
+          name="minLinks"
+          min={1}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          value={values.minLinks ?? ''}
+        />
       </Form.Group>
       <Form.Group>
         <Form.Label>Queries:</Form.Label>

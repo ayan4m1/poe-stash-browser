@@ -5,7 +5,8 @@ import {
   ItemProperty,
   FilterForm,
   FilterQuery,
-  RangeOperator
+  RangeOperator,
+  ItemSocket
 } from '../types';
 
 export const baseAuthUrl = 'https://www.pathofexile.com/';
@@ -173,6 +174,20 @@ const queryMatches = (
   });
 };
 
+const getLinkCount = (item: Item) => {
+  let links = 0;
+
+  let groupIndex = 0;
+  for (const socket of item.sockets ?? []) {
+    if (socket.group === groupIndex) {
+      links++;
+    }
+    groupIndex = socket.group;
+  }
+
+  return links;
+};
+
 export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
   const compiled = compileQueries(filter.queries);
   const slug = buildItemText(item);
@@ -220,6 +235,18 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
 
   if (filter.frameType && filter.frameType != item.frameType) {
     result = false;
+  }
+
+  if (filter.minSockets || filter.minLinks) {
+    const sockets = item.sockets?.length ?? 0;
+    const links = getLinkCount(item);
+
+    if (filter.minSockets && sockets <= filter.minSockets) {
+      result = false;
+    }
+    if (filter.minLinks && links <= filter.minLinks) {
+      result = false;
+    }
   }
 
   return result;
