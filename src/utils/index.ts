@@ -6,7 +6,7 @@ import {
   FilterForm,
   FilterQuery,
   RangeOperator,
-  ItemSocket
+  CompiledQuery
 } from '../types';
 
 export const baseAuthUrl = 'https://www.pathofexile.com/';
@@ -101,22 +101,6 @@ const compareRange = (
       return value === threshold;
   }
 };
-
-type CompiledTextQuery = {
-  kind: 'text';
-  regex: RegExp | null;
-  mode: FilterQuery['mode'];
-};
-
-type CompiledRangeQuery = {
-  kind: 'range';
-  propertyRegex: RegExp | null;
-  operator: RangeOperator;
-  threshold: number;
-  mode: FilterQuery['mode'];
-};
-
-type CompiledQuery = CompiledTextQuery | CompiledRangeQuery;
 
 const compileQueries = (queries: FilterQuery[]): CompiledQuery[] =>
   queries

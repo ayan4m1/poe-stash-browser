@@ -97,6 +97,13 @@ export enum ItemColor {
   White = 'G'
 }
 
+export enum SocketColor {
+  Red = 'R',
+  Green = 'G',
+  Blue = 'B',
+  White = 'W'
+}
+
 export type ItemProperty = {
   name: string;
   values: [string, number][];
@@ -269,6 +276,23 @@ export type FilterQuery = {
   operator?: RangeOperator;
   numberValue?: number;
 };
+
+
+type CompiledTextQuery = {
+  kind: 'text';
+  regex: RegExp | null;
+  mode: FilterQuery['mode'];
+};
+
+type CompiledRangeQuery = {
+  kind: 'range';
+  propertyRegex: RegExp | null;
+  operator: RangeOperator;
+  threshold: number;
+  mode: FilterQuery['mode'];
+};
+
+export type CompiledQuery = CompiledTextQuery | CompiledRangeQuery;
 
 export type FilterForm = {
   rarity?: ItemRarity;
