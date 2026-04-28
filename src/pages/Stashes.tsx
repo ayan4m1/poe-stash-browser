@@ -28,7 +28,9 @@ export default function Stashes() {
   const { data } = useStashes(selectedLeague?.id);
   const { queries } = useStashItems(selectedLeague?.id, data?.stashes);
   const doneFetching = useMemo(
-    () => queries.every((query) => query.isFetched && !query.isRefetching),
+    () =>
+      queries.every((query) => query.isFetched && !query.isRefetching) &&
+      queries.length,
     [queries]
   );
   const handleRefetchClick = useCallback(
