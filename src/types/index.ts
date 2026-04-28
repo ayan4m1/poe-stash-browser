@@ -101,7 +101,8 @@ export enum SocketColor {
   Red = 'R',
   Green = 'G',
   Blue = 'B',
-  White = 'W'
+  White = 'W',
+  Abyss = 'A'
 }
 
 export type ItemProperty = {
@@ -117,7 +118,7 @@ export type ItemProperty = {
 export type ItemSocket = {
   group: number;
   attr: 'S' | 'I' | 'D';
-  sColour: 'R' | 'G' | 'B' | 'W' | 'A';
+  sColour: SocketColor;
 };
 
 export type Item = {
@@ -282,13 +283,15 @@ export type MinSocketColors = {
   [SocketColor.Green]?: number;
   [SocketColor.Blue]?: number;
   [SocketColor.White]?: number;
+  [SocketColor.Abyss]?: number;
 };
 
 export const socketColorStyles: Record<SocketColor, React.CSSProperties> = {
-  [SocketColor.Red]: { backgroundColor: '#c62828', color: '#fff' },
-  [SocketColor.Green]: { backgroundColor: '#2e7d32', color: '#fff' },
-  [SocketColor.Blue]: { backgroundColor: '#1565c0', color: '#fff' },
-  [SocketColor.White]: { backgroundColor: '#e0e0e0', color: '#000' }
+  [SocketColor.Red]: { backgroundColor: '#c62828', color: '#fefefe' },
+  [SocketColor.Green]: { backgroundColor: '#2e7d32', color: '#fefefe' },
+  [SocketColor.Blue]: { backgroundColor: '#1565c0', color: '#fefefe' },
+  [SocketColor.White]: { backgroundColor: '#e0e0e0', color: '#000' },
+  [SocketColor.Abyss]: { backgroundColor: '#262323', color: '#fefefe' }
 };
 
 type CompiledTextQuery = {

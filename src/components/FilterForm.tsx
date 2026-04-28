@@ -68,7 +68,8 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
           [SocketColor.Red]: undefined,
           [SocketColor.Green]: undefined,
           [SocketColor.Blue]: undefined,
-          [SocketColor.White]: undefined
+          [SocketColor.White]: undefined,
+          [SocketColor.Abyss]: undefined
         } as MinSocketColors,
         minLinks: undefined,
         queries: [{ id: crypto.randomUUID(), value: '' }]
