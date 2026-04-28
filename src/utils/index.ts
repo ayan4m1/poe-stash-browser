@@ -221,14 +221,29 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
     result = false;
   }
 
-  if (filter.minSockets || filter.minLinks) {
-    const sockets = item.sockets?.length ?? 0;
-    const links = getLinkCount(item);
+  if (
+    filter.baseType &&
+    !item.baseType.toLowerCase().includes(filter.baseType.toLowerCase())
+  ) {
+    result = false;
+  }
 
-    if (filter.minSockets && sockets <= filter.minSockets) {
+  if (filter.minSockets) {
+    const colorCounts: Record<string, number> = {};
+    for (const socket of item.sockets ?? []) {
+      colorCounts[socket.sColour] = (colorCounts[socket.sColour] ?? 0) + 1;
+    }
+    if (
+      Object.entries(filter.minSockets).some(
+        ([colour, min]) => min && (colorCounts[colour] ?? 0) < min
+      )
+    ) {
       result = false;
     }
-    if (filter.minLinks && links <= filter.minLinks) {
+  }
+  if (filter.minLinks) {
+    const links = getLinkCount(item);
+    if (links < filter.minLinks) {
       result = false;
     }
   }

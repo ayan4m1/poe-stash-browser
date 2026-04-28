@@ -277,6 +277,19 @@ export type FilterQuery = {
   numberValue?: number;
 };
 
+export type MinSocketColors = {
+  [SocketColor.Red]?: number;
+  [SocketColor.Green]?: number;
+  [SocketColor.Blue]?: number;
+  [SocketColor.White]?: number;
+};
+
+export const socketColorStyles: Record<SocketColor, React.CSSProperties> = {
+  [SocketColor.Red]: { backgroundColor: '#c62828', color: '#fff' },
+  [SocketColor.Green]: { backgroundColor: '#2e7d32', color: '#fff' },
+  [SocketColor.Blue]: { backgroundColor: '#1565c0', color: '#fff' },
+  [SocketColor.White]: { backgroundColor: '#e0e0e0', color: '#000' }
+};
 
 type CompiledTextQuery = {
   kind: 'text';
@@ -298,7 +311,8 @@ export type FilterForm = {
   rarity?: ItemRarity;
   itemType?: ItemType;
   frameType?: ItemFrameType;
-  minSockets?: number;
+  baseType?: string;
+  minSockets?: MinSocketColors;
   minLinks?: number;
   queries: FilterQuery[];
 };
