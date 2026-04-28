@@ -12,7 +12,7 @@ import { rendererConfig } from './webpack.renderer.config';
 
 const config: ForgeConfig = {
   packagerConfig: {
-    asar: false,
+    asar: true,
     icon: './src/images/icon',
     executableName: 'poe-stash-browser'
   },
@@ -48,7 +48,6 @@ const config: ForgeConfig = {
     }
   ],
   plugins: [
-    // new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
       mainConfig,
       devContentSecurityPolicy:
@@ -76,7 +75,7 @@ const config: ForgeConfig = {
       [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-      [FuseV1Options.OnlyLoadAppFromAsar]: false
+      [FuseV1Options.OnlyLoadAppFromAsar]: true
     })
   ]
 };
