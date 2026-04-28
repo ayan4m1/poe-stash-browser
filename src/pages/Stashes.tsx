@@ -75,7 +75,6 @@ export default function Stashes() {
 
   return (
     <Layout>
-      <h1>My Stashes</h1>
       {!selectedLeague ? (
         <p>Select a league first</p>
       ) : doneFetching ? (
