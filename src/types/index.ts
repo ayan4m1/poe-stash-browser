@@ -331,3 +331,7 @@ export enum DisplayMode {
   Grid = 'grid',
   List = 'list'
 }
+
+export type SettingsForm = {
+  cacheHours: number;
+};
