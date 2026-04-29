@@ -8,6 +8,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import FilterForm from '../components/FilterForm';
+import ListItem from '../components/ListItem';
 import GridItem from '../components/GridItem';
 import Layout from '../components/Layout';
 import useStashes from '../hooks/useStashes';
@@ -19,7 +20,6 @@ import {
   Item as ItemType
 } from '../types';
 import { itemMatchesFilter } from '../utils';
-import ListItem from '../components/ListItem';
 
 export default function Stashes() {
   const [displayMode, setDisplayMode] = useState(DisplayMode.Grid);

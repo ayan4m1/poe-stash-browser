@@ -6,7 +6,8 @@ import {
   FilterForm,
   FilterQuery,
   RangeOperator,
-  CompiledQuery
+  CompiledQuery,
+  ItemFrameType
 } from '../types';
 
 export const baseAuthUrl = 'https://www.pathofexile.com/';
@@ -250,3 +251,10 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
 
   return result;
 };
+
+export const shouldUseSlimDisplay = (item: Item) =>
+  [
+    ItemFrameType.Currency,
+    ItemFrameType.DivinationCard,
+    ItemFrameType.Gem
+  ].includes(item.frameType);

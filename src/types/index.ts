@@ -294,6 +294,13 @@ export const socketColorStyles: Record<SocketColor, React.CSSProperties> = {
   [SocketColor.Abyss]: { backgroundColor: '#262323', color: '#fefefe' }
 };
 
+export const rarityColors = {
+  [ItemRarity.Normal]: '#fefefe',
+  [ItemRarity.Magic]: '#6e6ed0',
+  [ItemRarity.Rare]: '#ffff81',
+  [ItemRarity.Unique]: '#ae6135'
+};
+
 type CompiledTextQuery = {
   kind: 'text';
   regex: RegExp | null;

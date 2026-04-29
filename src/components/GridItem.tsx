@@ -1,40 +1,21 @@
 import { useMemo } from 'react';
-import {
-  Card,
-  Col,
-  ListGroup,
-  OverlayTrigger,
-  Row,
-  Tooltip
-} from 'react-bootstrap';
+import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 
-import { Item, ItemFrameType, ItemRarity } from '../types';
-import { interpolateProperties } from '../utils';
+import ModList from './ModList';
+import { Item, ItemRarity, rarityColors } from '../types';
+import { shouldUseSlimDisplay } from '../utils';
 
 interface IProps {
   item: Item;
 }
 
 export default function GridItem({ item }: IProps) {
-  const color = useMemo(() => {
-    switch (item.rarity) {
-      case ItemRarity.Magic:
-        return '#6e6ed0';
-      case ItemRarity.Rare:
-        return '#ffff81';
-      case ItemRarity.Unique:
-        return '#ae6135';
-      default:
-      case ItemRarity.Normal:
-        return '#fefefe';
-    }
-  }, [item]);
+  const color = useMemo(
+    () => rarityColors[item.rarity ?? ItemRarity.Normal],
+    [item]
+  );
 
-  const slimDisplay = [
-    ItemFrameType.Currency,
-    ItemFrameType.DivinationCard,
-    ItemFrameType.Gem
-  ].includes(item.frameType);
+  const slimDisplay = useMemo(() => shouldUseSlimDisplay(item), [item]);
 
   return (
     <Col className="mb-2 d-flex" xs={12} sm={4} md={3}>
@@ -66,46 +47,7 @@ export default function GridItem({ item }: IProps) {
           <Card.Body>
             <Row className="text-center">
               <Col xs={12}>
-                <ListGroup>
-                  {item.properties?.map((property) => {
-                    if (property.name.startsWith('Currently')) {
-                      return null;
-                    }
-
-                    return (
-                      <ListGroup.Item key={property.name}>
-                        {interpolateProperties(property)}
-                      </ListGroup.Item>
-                    );
-                  })}
-                </ListGroup>
-                {Boolean(item.properties?.length) && <hr />}
-                <ListGroup>
-                  {item.ilvl > 0 && (
-                    <ListGroup.Item>Item Level: {item.ilvl}</ListGroup.Item>
-                  )}
-                  {item.requirements?.map((requirement) => (
-                    <ListGroup.Item key={requirement.name}>
-                      {interpolateProperties(requirement, true)}
-                    </ListGroup.Item>
-                  ))}
-                </ListGroup>
-                {(item.ilvl > 0 || item.requirements?.length) && <hr />}
-              </Col>
-              <Col xs={12}>
-                <ListGroup>
-                  {item.implicitMods?.map((implicit) => (
-                    <ListGroup.Item key={implicit}>{implicit}</ListGroup.Item>
-                  ))}
-                </ListGroup>
-                {Boolean(
-                  item.implicitMods?.length && item.explicitMods?.length
-                ) && <hr />}
-                <ListGroup>
-                  {item.explicitMods?.map((explicit) => (
-                    <ListGroup.Item key={explicit}>{explicit}</ListGroup.Item>
-                  ))}
-                </ListGroup>
+                <ModList item={item} />
               </Col>
             </Row>
           </Card.Body>
