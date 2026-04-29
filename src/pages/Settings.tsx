@@ -1,16 +1,16 @@
 import { Button, Form } from 'react-bootstrap';
+import { FormikErrors, useFormik } from 'formik';
 import { useQueryClient } from '@tanstack/react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 import Layout from '../components/Layout';
-import { FormikErrors, useFormik } from 'formik';
 import { SettingsForm } from '../types';
 
 export default function Settings() {
   const queryClient = useQueryClient();
 
-  const { values, handleChange, handleSubmit } = useFormik({
+  const { errors, values, handleChange, handleSubmit } = useFormik({
     initialValues: {
       cacheHours:
         (queryClient.getDefaultOptions().queries?.gcTime ?? 0) / 1000 / 3600 // milliseconds into hours
@@ -48,6 +48,11 @@ export default function Settings() {
             type="number"
             value={values.cacheHours}
           />
+          {Boolean(errors.cacheHours) && (
+            <Form.Control.Feedback type="invalid">
+              {errors.cacheHours}
+            </Form.Control.Feedback>
+          )}
         </Form.Group>
         <Form.Group className="my-4">
           <Button type="submit">
