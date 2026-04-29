@@ -1,7 +1,7 @@
 {
   "name": "poe-stash-browser",
   "productName": "PoE Stash Browser",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Browse your PoE stash in a desktop app",
   "main": ".webpack/main",
   "scripts": {
