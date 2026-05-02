@@ -16,10 +16,12 @@ const Home = lazy(() => import('../pages/Home'));
 const Stashes = lazy(() => import('../pages/Stashes'));
 const Settings = lazy(() => import('../pages/Settings'));
 
+const gcTime =
+  1000 * 3600 * parseInt(localStorage.getItem('app.cacheHours') ?? '24', 10);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: 1000 * 3600 * 24,
+      gcTime,
       staleTime: 6000 * 3600,
       refetchOnMount: false,
       refetchOnReconnect: false

@@ -25,6 +25,7 @@ export default function Settings() {
       return result;
     },
     onSubmit: ({ cacheHours }) => {
+      localStorage.setItem('app.cacheHours', cacheHours.toString());
       queryClient.setDefaultOptions({
         queries: {
           gcTime: cacheHours * 3600 * 1000 // hours into milliseconds
