@@ -264,8 +264,8 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             />
           </Form.Group>
         </Col>
-        <Col xs={12} sm={6}>
-          <Form.Group>
+        <Col xs={12} sm={6} className="d-flex" style={{ flexWrap: 'wrap' }}>
+          <Form.Group style={{ flexBasis: '100%' }}>
             <Form.Label>Queries:</Form.Label>
             {values.queries.map((query, index) =>
               query.type === 'range' ? (
@@ -295,7 +295,10 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
               )
             )}
           </Form.Group>
-          <Form.Group className="my-4 text-end">
+          <Form.Group
+            className="align-self-start text-end"
+            style={{ flexBasis: '100%' }}
+          >
             <Button variant="success" size="sm" onClick={handleAddQuery}>
               <FontAwesomeIcon icon={faPlusCircle} /> Add Query
             </Button>{' '}
@@ -303,7 +306,10 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
               <FontAwesomeIcon icon={faPlusCircle} /> Add Range Query
             </Button>
           </Form.Group>
-          <Form.Group className="text-end">
+          <Form.Group
+            className="mt-4 align-self-end text-end"
+            style={{ flexBasis: '100%' }}
+          >
             <Button className="mb-4" type="submit">
               <FontAwesomeIcon icon={faMagnifyingGlass} /> Search
             </Button>
