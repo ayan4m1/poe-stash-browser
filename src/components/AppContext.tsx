@@ -8,8 +8,8 @@ interface IProps {
 }
 
 export default function AppContextProvider({ children }: IProps) {
-  const [selectedLeague, setSelectedLeague] = useState<League>(null);
-  const [selectedStash, setSelectedStash] = useState<StashTab>(null);
+  const [selectedLeague, setSelectedLeague] = useState<League>();
+  const [selectedStash, setSelectedStash] = useState<StashTab>();
 
   return (
     <AppContext.Provider
