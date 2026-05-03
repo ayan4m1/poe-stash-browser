@@ -22,7 +22,10 @@ import {
 import { itemMatchesFilter } from '../utils';
 
 export default function Stashes() {
-  const [displayMode, setDisplayMode] = useState(DisplayMode.Grid);
+  const defaultDisplayMode = localStorage.getItem(
+    'app.defaultDisplayMode'
+  ) as DisplayMode;
+  const [displayMode, setDisplayMode] = useState(defaultDisplayMode);
   const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
   const { selectedLeague } = useAppContext();
   const { data } = useStashes(selectedLeague?.id);

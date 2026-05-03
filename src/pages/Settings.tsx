@@ -1,38 +1,64 @@
-import { Button, Form } from 'react-bootstrap';
+import { MouseEvent, useCallback } from 'react';
 import { FormikErrors, useFormik } from 'formik';
 import { useQueryClient } from '@tanstack/react-query';
+import { Button, ButtonGroup, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import {
+  faCheckCircle,
+  faGridVertical,
+  faListDots
+} from '@fortawesome/free-solid-svg-icons';
 
 import Layout from '../components/Layout';
-import { SettingsForm } from '../types';
+import { DisplayMode, SettingsForm } from '../types';
 
 export default function Settings() {
   const queryClient = useQueryClient();
 
-  const { errors, values, handleChange, handleSubmit } = useFormik({
-    initialValues: {
-      cacheHours:
-        (queryClient.getDefaultOptions().queries?.gcTime ?? 0) / 1000 / 3600 // milliseconds into hours
-    },
-    validate: ({ cacheHours }) => {
-      const result: FormikErrors<SettingsForm> = {};
+  const { errors, values, handleChange, handleSubmit, setFieldValue } =
+    useFormik({
+      initialValues: {
+        defaultDisplayMode:
+          (localStorage.getItem('app.defaultDisplayMode') as DisplayMode) ??
+          DisplayMode.Grid,
+        cacheHours:
+          (queryClient.getDefaultOptions().queries?.gcTime ?? 0) / 1000 / 3600 // milliseconds into hours
+      },
+      validate: ({ cacheHours }) => {
+        const result: FormikErrors<SettingsForm> = {};
 
-      if (cacheHours < 1 || cacheHours > 192) {
-        result.cacheHours = 'Cache must be from 1-192 hours';
-      }
-
-      return result;
-    },
-    onSubmit: ({ cacheHours }) => {
-      localStorage.setItem('app.cacheHours', cacheHours.toString());
-      queryClient.setDefaultOptions({
-        queries: {
-          gcTime: cacheHours * 3600 * 1000 // hours into milliseconds
+        if (cacheHours < 1 || cacheHours > 192) {
+          result.cacheHours = 'Cache must be from 1-192 hours';
         }
-      });
-    }
-  });
+
+        return result;
+      },
+      onSubmit: ({ defaultDisplayMode, cacheHours }) => {
+        localStorage.setItem('app.defaultDisplayMode', defaultDisplayMode);
+        localStorage.setItem('app.cacheHours', cacheHours.toString());
+        const options = queryClient.getDefaultOptions();
+
+        const gcTime = cacheHours * 3600 * 1000; // hours into milliseconds
+
+        // only burst cache if the gc time changed
+        if (options.queries?.gcTime !== gcTime) {
+          queryClient.setDefaultOptions({
+            queries: {
+              gcTime
+            }
+          });
+        }
+      }
+    });
+  const handleDisplayModeClick = useCallback(
+    (event: MouseEvent<HTMLButtonElement>) => {
+      setFieldValue(
+        'defaultDisplayMode',
+        event.currentTarget.name as DisplayMode
+      );
+    },
+    [setFieldValue]
+  );
 
   return (
     <Layout>
@@ -55,7 +81,38 @@ export default function Settings() {
             </Form.Control.Feedback>
           )}
         </Form.Group>
-        <Form.Group className="my-4">
+        <Form.Group>
+          <Form.Label>Default viewing mode</Form.Label>
+          <div>
+            <ButtonGroup>
+              <Button
+                className="text-white"
+                name="grid"
+                onClick={handleDisplayModeClick}
+                variant={
+                  values.defaultDisplayMode === DisplayMode.Grid
+                    ? 'primary'
+                    : 'outline-primary'
+                }
+              >
+                <FontAwesomeIcon icon={faGridVertical} /> Grid
+              </Button>
+              <Button
+                className="text-white"
+                name="list"
+                onClick={handleDisplayModeClick}
+                variant={
+                  values.defaultDisplayMode === DisplayMode.List
+                    ? 'primary'
+                    : 'outline-primary'
+                }
+              >
+                <FontAwesomeIcon icon={faListDots} /> List
+              </Button>
+            </ButtonGroup>
+          </div>
+        </Form.Group>
+        <Form.Group className="my-4 text-end">
           <Button type="submit">
             <FontAwesomeIcon icon={faCheckCircle} /> Save
           </Button>
