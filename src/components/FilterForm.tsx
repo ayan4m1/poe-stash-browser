@@ -13,14 +13,13 @@ import {
   BooleanMode,
   FilterForm as FilterFormType,
   FilterQueryType,
-  ItemFrameTypeNames,
   ItemRarity,
   ItemType as ItemTypes,
   MinSocketColors,
   RangeOperator,
-  SocketColor,
-  socketColorStyles
+  SocketColor
 } from '../types';
+import { itemFrameTypeNames, socketColorStyles } from '../utils';
 
 interface FilterFormProps {
   onFilter: (values: FilterFormType) => void;
@@ -201,7 +200,7 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
               value={values.frameType}
             >
               <option value="any">Any</option>
-              {Object.entries(ItemFrameTypeNames).map(([key, val]) => (
+              {Object.entries(itemFrameTypeNames).map(([key, val]) => (
                 <option key={key} value={key}>
                   {val}
                 </option>

@@ -2,8 +2,8 @@ import { useMemo } from 'react';
 import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 
 import ModList from './ModList';
-import { Item, ItemRarity, rarityColors } from '../types';
-import { shouldUseSlimDisplay } from '../utils';
+import { Item, ItemRarity } from '../types';
+import { rarityColors, shouldUseSlimDisplay } from '../utils';
 
 interface IProps {
   item: Item;

@@ -8,8 +8,8 @@ import {
   Tooltip
 } from 'react-bootstrap';
 
-import { Item, ItemRarity, rarityColors } from '../types';
-import { shouldUseSlimDisplay } from '../utils';
+import { Item, ItemRarity } from '../types';
+import { rarityColors, shouldUseSlimDisplay } from '../utils';
 import ModList from './ModList';
 
 interface IProps {

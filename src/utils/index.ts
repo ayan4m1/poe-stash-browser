@@ -7,8 +7,42 @@ import {
   FilterQuery,
   RangeOperator,
   CompiledQuery,
-  ItemFrameType
+  ItemFrameType,
+  ItemRarity,
+  SocketColor
 } from '../types';
+
+export const itemFrameTypeNames = {
+  [ItemFrameType.Normal]: 'Normal',
+  [ItemFrameType.Magic]: 'Magic',
+  [ItemFrameType.Rare]: 'Rare',
+  [ItemFrameType.Unique]: 'Unique',
+  [ItemFrameType.Gem]: 'Gem',
+  [ItemFrameType.Currency]: 'Currency',
+  [ItemFrameType.DivinationCard]: 'Div Card',
+  [ItemFrameType.Quest]: 'Quest',
+  [ItemFrameType.Prophecy]: 'Prophecy',
+  [ItemFrameType.Foil]: 'Foil',
+  [ItemFrameType.SupporterFoil]: 'Supporter Foil',
+  [ItemFrameType.Necropolis]: 'Necropolis',
+  [ItemFrameType.Gold]: 'Gold',
+  [ItemFrameType.Breach]: 'Breach'
+};
+
+export const socketColorStyles: Record<SocketColor, React.CSSProperties> = {
+  [SocketColor.Red]: { backgroundColor: '#c62828', color: '#fefefe' },
+  [SocketColor.Green]: { backgroundColor: '#2e7d32', color: '#fefefe' },
+  [SocketColor.Blue]: { backgroundColor: '#1565c0', color: '#fefefe' },
+  [SocketColor.White]: { backgroundColor: '#e0e0e0', color: '#000' },
+  [SocketColor.Abyss]: { backgroundColor: '#262323', color: '#fefefe' }
+};
+
+export const rarityColors = {
+  [ItemRarity.Normal]: '#fefefe',
+  [ItemRarity.Magic]: '#6e6ed0',
+  [ItemRarity.Rare]: '#ffff81',
+  [ItemRarity.Unique]: '#ae6135'
+};
 
 export const baseAuthUrl = 'https://www.pathofexile.com/';
 export const baseApiUrl = 'https://api.pathofexile.com/';
