@@ -71,6 +71,8 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
           [SocketColor.Abyss]: undefined
         } as MinSocketColors,
         minLinks: undefined,
+        minItemLevel: undefined,
+        maxItemLevel: undefined,
         queries: [{ id: crypto.randomUUID(), value: '' }]
       },
       validate,
@@ -230,6 +232,31 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
               type="text"
               value={values.baseType}
             />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Item Level:</Form.Label>
+            <InputGroup>
+              <InputGroup.Text>Min</InputGroup.Text>
+              <Form.Control
+                type="number"
+                name="minItemLevel"
+                min={1}
+                max={100}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                value={values.minItemLevel ?? ''}
+              />
+              <InputGroup.Text>Max</InputGroup.Text>
+              <Form.Control
+                type="number"
+                name="maxItemLevel"
+                min={1}
+                max={100}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                value={values.maxItemLevel ?? ''}
+              />
+            </InputGroup>
           </Form.Group>
           <Form.Group>
             <Form.Label>Minimum Sockets:</Form.Label>

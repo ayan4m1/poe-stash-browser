@@ -292,6 +292,8 @@ export type FilterForm = {
   baseType?: string;
   minSockets?: MinSocketColors;
   minLinks?: number;
+  minItemLevel?: number;
+  maxItemLevel?: number;
   queries: FilterQuery[];
 };
 

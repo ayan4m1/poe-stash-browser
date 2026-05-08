@@ -283,6 +283,14 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
     }
   }
 
+  if (filter.minItemLevel !== undefined && item.ilvl < filter.minItemLevel) {
+    result = false;
+  }
+
+  if (filter.maxItemLevel !== undefined && item.ilvl > filter.maxItemLevel) {
+    result = false;
+  }
+
   return result;
 };
 
