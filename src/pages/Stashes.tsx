@@ -20,6 +20,8 @@ import {
   Item as ItemType
 } from '../types';
 import { itemMatchesFilter } from '../utils';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
+import { addSeconds } from 'date-fns/addSeconds';
 
 export default function Stashes() {
   const defaultDisplayMode = localStorage.getItem(
@@ -29,7 +31,10 @@ export default function Stashes() {
   const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
   const { selectedLeague } = useAppContext();
   const { data } = useStashes(selectedLeague?.id);
-  const { queries } = useStashItems(selectedLeague?.id, data?.stashes);
+  const { queries, timeEstimate } = useStashItems(
+    selectedLeague?.id,
+    data?.stashes
+  );
   const doneFetching = useMemo(
     () =>
       queries.every((query) => query.isFetched && !query.isRefetching) &&
@@ -131,7 +136,13 @@ export default function Stashes() {
               </h4>
             </Col>
             <Col xs={12} sm={6} className="text-end">
-              <Spinner className="text-center" />
+              <Spinner />
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={12}>
+              Approximately{' '}
+              {formatDistanceToNow(addSeconds(new Date(), timeEstimate))}
             </Col>
           </Row>
           <Row>

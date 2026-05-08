@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQueries } from '@tanstack/react-query';
 
 import useRateLimiters from './useRateLimiters';
@@ -8,7 +8,7 @@ import { baseApiUrl } from '../utils';
 
 export default function useStashItems(league?: string, stashes?: StashTab[]) {
   const [initialized, setInitialized] = useState(false);
-  const { limiter, setupRateLimiters } = useRateLimiters();
+  const { limiter, setupRateLimiters, getTimeEstimate } = useRateLimiters();
   const { token } = useAuthContext();
 
   useEffect(() => {
@@ -33,30 +33,39 @@ export default function useStashItems(league?: string, stashes?: StashTab[]) {
     }
   }, [league, stashes, token, limiter, setupRateLimiters]);
 
+  const queries = useQueries({
+    queries:
+      stashes?.map((stash) => ({
+        queryKey: ['account', league, 'stash', stash.id],
+        enabled: Boolean(initialized && limiter),
+        queryFn: () =>
+          limiter?.schedule(() =>
+            fetch(`${baseApiUrl}stash/${league}/${stash.id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`
+              }
+            }).then(async (data) => {
+              const result = (await data.json()) as unknown as StashResponse;
+
+              result.stash.items = result.stash.items?.map((item) => ({
+                ...item,
+                stashTab: `Tab #${(result.stash.index ?? 0) + 1} - ${result.stash.name}`
+              }));
+
+              return result;
+            })
+          )
+      })) ?? []
+  });
+
+  const pendingCount = queries.filter((q) => !q.isFetched || q.isStale).length;
+  const timeEstimate = useMemo(
+    () => getTimeEstimate(pendingCount),
+    [pendingCount, getTimeEstimate]
+  );
+
   return {
-    queries: useQueries({
-      queries:
-        stashes?.map((stash) => ({
-          queryKey: ['account', league, 'stash', stash.id],
-          enabled: Boolean(initialized && limiter),
-          queryFn: () =>
-            limiter?.schedule(() =>
-              fetch(`${baseApiUrl}stash/${league}/${stash.id}`, {
-                headers: {
-                  Authorization: `Bearer ${token}`
-                }
-              }).then(async (data) => {
-                const result = (await data.json()) as unknown as StashResponse;
-
-                result.stash.items = result.stash.items?.map((item) => ({
-                  ...item,
-                  stashTab: `Tab #${(result.stash.index ?? 0) + 1} - ${result.stash.name}`
-                }));
-
-                return result;
-              })
-            )
-        })) ?? []
-    })
+    queries,
+    timeEstimate
   };
 }

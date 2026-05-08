@@ -78,6 +78,10 @@ export default function useRateLimiters() {
   }, []);
   const getTimeEstimate = useCallback(
     (queryCount: number) => {
+      if (maxRequests <= 0) {
+        return 0;
+      }
+
       const pauses = Math.ceil(
         Math.max(0, queryCount - remainingRequests) / maxRequests
       );
