@@ -57,27 +57,77 @@ const validate = (values: FilterFormType) => {
 };
 
 export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
-  const { values, errors, handleChange, handleSubmit, setFieldValue } =
-    useFormik<FilterFormType>({
-      initialValues: {
-        rarity: undefined,
-        itemType: undefined,
-        frameType: undefined,
-        minSockets: {
-          [SocketColor.Red]: undefined,
-          [SocketColor.Green]: undefined,
-          [SocketColor.Blue]: undefined,
-          [SocketColor.White]: undefined,
-          [SocketColor.Abyss]: undefined
-        } as MinSocketColors,
-        minLinks: undefined,
-        minItemLevel: undefined,
-        maxItemLevel: undefined,
-        queries: [{ id: crypto.randomUUID(), value: '' }]
-      },
-      validate,
-      onSubmit
+  const booleanFlags: { label: string; field: keyof FilterFormType }[] = [
+    { label: 'Corrupted', field: 'corrupted' },
+    { label: 'Identified', field: 'identified' },
+    { label: 'Veiled', field: 'veiled' },
+    { label: 'Synthesised', field: 'synthesised' },
+    { label: 'Fractured', field: 'fractured' },
+    { label: 'Replica', field: 'replica' },
+    { label: 'Mirrored', field: 'mirrored' }
+  ];
+
+  const influenceOptions = [
+    'elder',
+    'shaper',
+    'searing',
+    'tangled',
+    'crusader',
+    'redeemer',
+    'hunter',
+    'warlord'
+  ];
+
+  const initialValues = useMemo<FilterFormType>(
+    () => ({
+      rarity: undefined,
+      itemType: undefined,
+      frameType: undefined,
+      minSockets: {
+        [SocketColor.Red]: undefined,
+        [SocketColor.Green]: undefined,
+        [SocketColor.Blue]: undefined,
+        [SocketColor.White]: undefined,
+        [SocketColor.Abyss]: undefined
+      } as MinSocketColors,
+      minLinks: undefined,
+      minItemLevel: undefined,
+      maxItemLevel: undefined,
+      minStackSize: undefined,
+      maxStackSize: undefined,
+      corrupted: undefined,
+      identified: undefined,
+      veiled: undefined,
+      synthesised: undefined,
+      fractured: undefined,
+      replica: undefined,
+      mirrored: undefined,
+      influences: [],
+      queries: [{ id: crypto.randomUUID(), value: '' }]
+    }),
+    []
+  );
+
+  const {
+    values,
+    errors,
+    handleChange,
+    handleSubmit,
+    setFieldValue,
+    resetForm
+  } = useFormik<FilterFormType>({
+    initialValues,
+    validate,
+    onSubmit
+  });
+
+  const handleReset = useCallback(() => {
+    resetForm();
+    onSubmit({
+      ...initialValues,
+      queries: [{ id: crypto.randomUUID(), value: '' }]
     });
+  }, [resetForm, onSubmit, initialValues]);
 
   const handleAddQuery = useCallback(() => {
     setFieldValue('queries', [
@@ -336,9 +386,19 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             className="mt-4 align-self-end text-end"
             style={{ flexBasis: '100%' }}
           >
-            <Button className="mb-4" type="submit">
-              <FontAwesomeIcon icon={faMagnifyingGlass} /> Search
-            </Button>
+            <ButtonGroup>
+              <Button
+                className="mb-4 me-2"
+                variant="secondary"
+                type="button"
+                onClick={handleReset}
+              >
+                <FontAwesomeIcon icon={faRotateLeft} /> Clear
+              </Button>
+              <Button className="mb-4" type="submit">
+                <FontAwesomeIcon icon={faMagnifyingGlass} /> Search
+              </Button>
+            </ButtonGroup>
           </Form.Group>
         </Col>
       </Row>
