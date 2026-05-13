@@ -203,7 +203,12 @@ export default function Stashes() {
           </Row>
           <Row>
             <Col xs={12}>
-              <ProgressBar min={1} now={fetched} max={queries.length} />
+              <ProgressBar
+                animated
+                min={1}
+                now={fetched}
+                max={queries.length}
+              />
             </Col>
           </Row>
         </Fragment>
