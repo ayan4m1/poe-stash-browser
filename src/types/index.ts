@@ -294,6 +294,16 @@ export type FilterForm = {
   minLinks?: number;
   minItemLevel?: number;
   maxItemLevel?: number;
+  minStackSize?: number;
+  maxStackSize?: number;
+  corrupted?: boolean;
+  identified?: boolean;
+  veiled?: boolean;
+  synthesised?: boolean;
+  fractured?: boolean;
+  replica?: boolean;
+  mirrored?: boolean;
+  influences: string[];
   queries: FilterQuery[];
 };
 
@@ -301,6 +311,8 @@ export enum DisplayMode {
   Grid = 'grid',
   List = 'list'
 }
+
+export type SortKey = 'none' | 'name' | 'ilvl' | 'stashTab' | 'stackSize';
 
 export type SettingsForm = {
   cacheHours: number;

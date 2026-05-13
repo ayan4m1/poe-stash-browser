@@ -291,6 +291,54 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
     result = false;
   }
 
+  if (filter.minStackSize !== undefined && item.stackSize !== undefined) {
+    result = result && item.stackSize >= filter.minStackSize;
+  }
+
+  if (filter.maxStackSize !== undefined && item.stackSize !== undefined) {
+    result = result && item.stackSize <= filter.maxStackSize;
+  }
+
+  if (filter.corrupted !== undefined) {
+    result = result && (item.corrupted === true) === filter.corrupted;
+  }
+
+  if (filter.identified !== undefined) {
+    result = result && item.identified === filter.identified;
+  }
+
+  if (filter.veiled !== undefined) {
+    result = result && (item.veiled === true) === filter.veiled;
+  }
+
+  if (filter.synthesised !== undefined) {
+    result = result && (item.synthesised === true) === filter.synthesised;
+  }
+
+  if (filter.fractured !== undefined) {
+    result = result && (item.fractured === true) === filter.fractured;
+  }
+
+  if (filter.replica !== undefined) {
+    result = result && (item.replica === true) === filter.replica;
+  }
+
+  if (filter.mirrored !== undefined) {
+    result = result && (item.duplicated === true) === filter.mirrored;
+  }
+
+  if (filter.influences?.length) {
+    const topLevelFlags = ['elder', 'shaper', 'searing', 'tangled'] as const;
+    for (const influence of filter.influences) {
+      if (topLevelFlags.includes(influence as (typeof topLevelFlags)[number])) {
+        result =
+          result && item[influence as (typeof topLevelFlags)[number]] === true;
+      } else {
+        result = result && influence in item.influences;
+      }
+    }
+  }
+
   return result;
 };
 

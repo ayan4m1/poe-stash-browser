@@ -1,10 +1,25 @@
 import { useFormik } from 'formik';
-import { Button, Col, Form, InputGroup, Row } from 'react-bootstrap';
-import { ChangeEvent, Fragment, KeyboardEvent, useCallback } from 'react';
+import {
+  Button,
+  ButtonGroup,
+  Col,
+  Container,
+  Form,
+  InputGroup,
+  Row
+} from 'react-bootstrap';
+import {
+  ChangeEvent,
+  Fragment,
+  KeyboardEvent,
+  useCallback,
+  useMemo
+} from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMagnifyingGlass,
-  faPlusCircle
+  faPlusCircle,
+  faRotateLeft
 } from '@fortawesome/free-solid-svg-icons';
 
 import FilterQueryRow from './FilterQueryRow';
@@ -20,6 +35,7 @@ import {
   SocketColor
 } from '../types';
 import { itemFrameTypeNames, socketColorStyles } from '../utils';
+import SplitButton from './SplitButton';
 
 interface FilterFormProps {
   onFilter: (values: FilterFormType) => void;
@@ -221,6 +237,27 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
     [handleChange, setFieldValue]
   );
 
+  const handleFlagChange = useCallback(
+    (field: keyof FilterFormType) => (checked: boolean, value?: boolean) => {
+      const current = values[field] as boolean | undefined;
+      setFieldValue(field, current === value && checked ? undefined : value);
+    },
+    [values, setFieldValue]
+  );
+
+  const handleInfluenceChange = useCallback(
+    (influence: string, checked: boolean) => {
+      const current = values.influences ?? [];
+      setFieldValue(
+        'influences',
+        checked
+          ? [...current, influence]
+          : current.filter((i) => i !== influence)
+      );
+    },
+    [values.influences, setFieldValue]
+  );
+
   const queryErrors = errors?.queries as
     | Array<Record<string, string>>
     | undefined;
@@ -309,6 +346,29 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             </InputGroup>
           </Form.Group>
           <Form.Group>
+            <Form.Label>Stack Size:</Form.Label>
+            <InputGroup>
+              <InputGroup.Text>Min</InputGroup.Text>
+              <Form.Control
+                type="number"
+                name="minStackSize"
+                min={1}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                value={values.minStackSize ?? ''}
+              />
+              <InputGroup.Text>Max</InputGroup.Text>
+              <Form.Control
+                type="number"
+                name="maxStackSize"
+                min={1}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                value={values.maxStackSize ?? ''}
+              />
+            </InputGroup>
+          </Form.Group>
+          <Form.Group>
             <Form.Label>Minimum Sockets:</Form.Label>
             <InputGroup>
               {Object.values(SocketColor).map((color) => (
@@ -338,6 +398,55 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
               onKeyDown={handleKeyDown}
               value={values.minLinks ?? ''}
             />
+          </Form.Group>
+          <Form.Group className="mt-2">
+            <Form.Label>Item Flags:</Form.Label>
+            <Row>
+              {booleanFlags.map(({ label, field }) => {
+                const current = values[field] as boolean | undefined;
+                return (
+                  <Col xs={6} key={field} className="mb-1">
+                    <Row>
+                      <Col xs={12} sm={4} className="d-flex align-items-center">
+                        <span className="me-2" style={{ fontSize: '0.85em' }}>
+                          {label}:
+                        </span>
+                      </Col>
+                      <Col
+                        xs={12}
+                        sm={8}
+                        className="d-flex justify-content-center"
+                      >
+                        <SplitButton
+                          active={current === true}
+                          enabled={current !== undefined}
+                          onChange={handleFlagChange(field)}
+                        />
+                      </Col>
+                    </Row>
+                  </Col>
+                );
+              })}
+            </Row>
+          </Form.Group>
+          <Form.Group className="mt-2">
+            <Form.Label>Influences:</Form.Label>
+            <Row>
+              {influenceOptions.map((influence) => (
+                <Col xs={6} key={influence} className="mb-1">
+                  <Form.Check
+                    type="checkbox"
+                    label={
+                      influence.charAt(0).toUpperCase() + influence.slice(1)
+                    }
+                    checked={values.influences?.includes(influence) ?? false}
+                    onChange={(e) =>
+                      handleInfluenceChange(influence, e.target.checked)
+                    }
+                  />
+                </Col>
+              ))}
+            </Row>
           </Form.Group>
         </Col>
         <Col xs={12} sm={6} className="d-flex" style={{ flexWrap: 'wrap' }}>

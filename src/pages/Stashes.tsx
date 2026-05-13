@@ -1,5 +1,13 @@
 import { Fragment, useCallback, useMemo, useState } from 'react';
-import { Button, Col, Row, Spinner, ProgressBar } from 'react-bootstrap';
+import {
+  Button,
+  Col,
+  Row,
+  Spinner,
+  ProgressBar,
+  Form,
+  Badge
+} from 'react-bootstrap';
 import {
   faGridVertical,
   faListDots,
@@ -17,7 +25,8 @@ import useStashItems from '../hooks/useStashItems';
 import {
   DisplayMode,
   FilterForm as FilterFormType,
-  Item as ItemType
+  Item as ItemType,
+  SortKey
 } from '../types';
 import { itemMatchesFilter } from '../utils';
 import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
@@ -28,7 +37,8 @@ export default function Stashes() {
     'app.defaultDisplayMode'
   ) as DisplayMode;
   const [displayMode, setDisplayMode] = useState(defaultDisplayMode);
-  const [filteredItems, setFilteredItems] = useState<ItemType[]>([]);
+  const [filteredItems, setFilteredItems] = useState<ItemType[] | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey>('none');
   const { selectedLeague } = useAppContext();
   const { data } = useStashes(selectedLeague?.id);
   const { queries, timeEstimate } = useStashItems(
@@ -69,6 +79,28 @@ export default function Stashes() {
     },
     [doneFetching, queries]
   );
+  const sortedItems = useMemo(() => {
+    if (!filteredItems) {
+      return null;
+    }
+    if (sortKey === 'none') {
+      return filteredItems;
+    }
+    return [...filteredItems].sort((a, b) => {
+      switch (sortKey) {
+        case 'name':
+          return (a.name || a.typeLine).localeCompare(b.name || b.typeLine);
+        case 'ilvl':
+          return b.ilvl - a.ilvl;
+        case 'stashTab':
+          return (a.stashTab ?? '').localeCompare(b.stashTab ?? '');
+        case 'stackSize':
+          return (b.stackSize ?? 0) - (a.stackSize ?? 0);
+        default:
+          return 0;
+      }
+    });
+  }, [filteredItems, sortKey]);
   const fetched = useMemo(
     () =>
       queries.filter((query) => query.isFetched && !query.isRefetching).length,
@@ -97,8 +129,28 @@ export default function Stashes() {
             </Col>
           </Row>
           <FilterForm onFilter={handleFilter} />
-          <Row className="mb-4">
-            <Col className="text-end">
+          <Row className="mb-4 align-items-center">
+            <Col>
+              {sortedItems !== null && (
+                <Badge bg={sortedItems.length > 0 ? 'primary' : 'secondary'}>
+                  {sortedItems.length} result
+                  {sortedItems.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
+            </Col>
+            <Col xs="auto" className="d-flex align-items-center gap-2">
+              <Form.Select
+                size="sm"
+                style={{ width: 'auto' }}
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value as SortKey)}
+              >
+                <option value="none">Default order</option>
+                <option value="name">Name A→Z</option>
+                <option value="ilvl">Item Level ↓</option>
+                <option value="stashTab">Stash Tab A→Z</option>
+                <option value="stackSize">Stack Size ↓</option>
+              </Form.Select>
               <Button onClick={handleGridClick}>
                 <FontAwesomeIcon icon={faGridVertical} />
               </Button>{' '}
@@ -108,8 +160,12 @@ export default function Stashes() {
             </Col>
           </Row>
           <Row>
-            {filteredItems.length ? (
-              filteredItems.map((item) =>
+            {sortedItems === null ? (
+              <Col className="text-center text-muted">
+                Run a search to see results
+              </Col>
+            ) : sortedItems.length ? (
+              sortedItems.map((item) =>
                 displayMode === DisplayMode.Grid ? (
                   <GridItem key={item.id} item={item} />
                 ) : (
