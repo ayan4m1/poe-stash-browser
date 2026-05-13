@@ -123,7 +123,7 @@ export default function Stashes() {
         <Fragment>
           <Row>
             <Col className="text-end">
-              <Button variant="danger" onClick={handleRefetchClick}>
+              <Button onClick={handleRefetchClick} variant="danger">
                 <FontAwesomeIcon icon={faRefresh} /> Refetch
               </Button>
             </Col>
@@ -138,12 +138,12 @@ export default function Stashes() {
                 </Badge>
               )}
             </Col>
-            <Col xs="auto" className="d-flex align-items-center gap-2">
+            <Col className="d-flex align-items-center gap-2" xs="auto">
               <Form.Select
+                onChange={(e) => setSortKey(e.target.value as SortKey)}
                 size="sm"
                 style={{ width: 'auto' }}
                 value={sortKey}
-                onChange={(e) => setSortKey(e.target.value as SortKey)}
               >
                 <option value="none">Default order</option>
                 <option value="name">Name A→Z</option>
@@ -167,9 +167,9 @@ export default function Stashes() {
             ) : sortedItems.length ? (
               sortedItems.map((item) =>
                 displayMode === DisplayMode.Grid ? (
-                  <GridItem key={item.id} item={item} />
+                  <GridItem item={item} key={item.id} />
                 ) : (
-                  <ListItem key={item.id} item={item} />
+                  <ListItem item={item} key={item.id} />
                 )
               )
             ) : (
@@ -180,7 +180,7 @@ export default function Stashes() {
       ) : (
         <Fragment>
           <Row>
-            <Col xs={12} sm={6}>
+            <Col sm={6} xs={12}>
               <h4>
                 Fetching{' '}
                 {
@@ -191,7 +191,7 @@ export default function Stashes() {
                 stash tabs&hellip;
               </h4>
             </Col>
-            <Col xs={12} sm={6} className="text-end">
+            <Col className="text-end" sm={6} xs={12}>
               <Spinner />
             </Col>
           </Row>
@@ -205,9 +205,9 @@ export default function Stashes() {
             <Col xs={12}>
               <ProgressBar
                 animated
+                max={queries.length}
                 min={1}
                 now={fetched}
-                max={queries.length}
               />
             </Col>
           </Row>

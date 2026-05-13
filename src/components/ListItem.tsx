@@ -24,18 +24,18 @@ export default function ListItem({ item }: IProps) {
   const slimDisplay = useMemo(() => shouldUseSlimDisplay(item), [item]);
 
   return (
-    <Col xs={12} className="mb-2">
+    <Col className="mb-2" xs={12}>
       <Card style={{ backgroundColor: '#262323' }}>
         <Card.Body>
           <Container fluid>
             <Row>
               <OverlayTrigger
-                placement="right"
                 overlay={(props) => (
                   <Tooltip {...props}>{item?.stashTab}</Tooltip>
                 )}
+                placement="right"
               >
-                <Col xs={12} sm={2}>
+                <Col sm={2} xs={12}>
                   <p className="text-center">
                     <img src={item.icon} />
                   </p>
@@ -46,7 +46,7 @@ export default function ListItem({ item }: IProps) {
                 </Col>
               </OverlayTrigger>
               {!slimDisplay && (
-                <Col xs={12} sm={10}>
+                <Col sm={10} xs={12}>
                   <ModList item={item} />
                 </Col>
               )}

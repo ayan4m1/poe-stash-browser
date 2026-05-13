@@ -18,7 +18,7 @@ export default function GridItem({ item }: IProps) {
   const slimDisplay = useMemo(() => shouldUseSlimDisplay(item), [item]);
 
   return (
-    <Col className="mb-2 d-flex" xs={12} sm={4} md={3}>
+    <Col className="mb-2 d-flex" md={3} sm={4} xs={12}>
       <Card
         style={{
           borderRadius: 16,
@@ -28,8 +28,8 @@ export default function GridItem({ item }: IProps) {
         }}
       >
         <OverlayTrigger
-          placement="bottom"
           overlay={(props) => <Tooltip {...props}>{item?.stashTab}</Tooltip>}
+          placement="bottom"
         >
           <Card.Header style={{ backgroundColor: '#262323' }}>
             <Card.Title className="text-center" style={{ color }}>

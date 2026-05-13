@@ -44,9 +44,9 @@ export default function FilterRangeQueryRow({
     <InputGroup className="mb-2">
       {!isFirst && (
         <Form.Select
-          value={query.mode}
           onChange={handleModeChange}
           style={{ maxWidth: '100px' }}
+          value={query.mode}
         >
           <option value="and">AND</option>
           <option value="or">OR</option>
@@ -54,17 +54,17 @@ export default function FilterRangeQueryRow({
         </Form.Select>
       )}
       <Form.Control
-        type="text"
-        value={query.value}
+        isInvalid={!!error}
         onChange={handleValueChange}
         onKeyDown={onKeyDown}
-        isInvalid={!!error}
         placeholder={isFirst ? 'Property name' : 'Additional range query'}
+        type="text"
+        value={query.value}
       />
       <Form.Select
-        value={query.operator}
         onChange={handleOperatorChange}
         style={{ maxWidth: '80px' }}
+        value={query.operator}
       >
         <option value="<">{'<'}</option>
         <option value="<=">{'<='}</option>
@@ -73,14 +73,14 @@ export default function FilterRangeQueryRow({
         <option value="=">=</option>
       </Form.Select>
       <Form.Control
-        type="number"
-        value={query.numberValue ?? 0}
         onChange={handleNumberValueChange}
         onKeyDown={onKeyDown}
         style={{ maxWidth: '100px' }}
+        type="number"
+        value={query.numberValue ?? 0}
       />
       {!isFirst && (
-        <Button variant="outline-danger" onClick={() => onRemove(query.id)}>
+        <Button onClick={() => onRemove(query.id)} variant="outline-danger">
           <FontAwesomeIcon icon={faXmarkCircle} />
         </Button>
       )}

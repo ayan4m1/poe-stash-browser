@@ -38,8 +38,8 @@ export default function Heading() {
   }, [data, setSelectedLeague]);
 
   return (
-    <Container fluid className="g-0">
-      <Navbar bg="primary" variant="dark" className="mb-4">
+    <Container className="g-0" fluid>
+      <Navbar bg="primary" className="mb-4" variant="dark">
         <Navbar.Brand as={Link} className="ms-4" to="/">
           Stashr
         </Navbar.Brand>

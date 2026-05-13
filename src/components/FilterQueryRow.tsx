@@ -34,9 +34,9 @@ export default function FilterQueryRow({
     <InputGroup className="mb-2">
       {!isFirst && (
         <Form.Select
-          value={query.mode}
           onChange={handleModeChange}
           style={{ maxWidth: '90px' }}
+          value={query.mode}
         >
           <option value="and">AND</option>
           <option value="or">OR</option>
@@ -44,15 +44,15 @@ export default function FilterQueryRow({
         </Form.Select>
       )}
       <Form.Control
-        type="text"
-        value={query.value}
+        isInvalid={Boolean(error)}
         onChange={handleValueChange}
         onKeyDown={onKeyDown}
-        isInvalid={Boolean(error)}
         placeholder={'Regular expression (e.g. move.*speed)'}
+        type="text"
+        value={query.value}
       />
       {!isFirst && (
-        <Button variant="outline-danger" onClick={() => onRemove(query.id)}>
+        <Button onClick={() => onRemove(query.id)} variant="outline-danger">
           <FontAwesomeIcon icon={faXmarkCircle} />
         </Button>
       )}

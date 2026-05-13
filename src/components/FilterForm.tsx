@@ -3,7 +3,6 @@ import {
   Button,
   ButtonGroup,
   Col,
-  Container,
   Form,
   InputGroup,
   Row
@@ -265,7 +264,7 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
   return (
     <Form onSubmit={handleSubmit}>
       <Row>
-        <Col xs={12} sm={6}>
+        <Col sm={6} xs={12}>
           <Form.Group>
             <Form.Label>Rarity:</Form.Label>
             <Form.Select
@@ -325,22 +324,22 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             <InputGroup>
               <InputGroup.Text>Min</InputGroup.Text>
               <Form.Control
-                type="number"
-                name="minItemLevel"
-                min={1}
                 max={100}
+                min={1}
+                name="minItemLevel"
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
+                type="number"
                 value={values.minItemLevel ?? ''}
               />
               <InputGroup.Text>Max</InputGroup.Text>
               <Form.Control
-                type="number"
-                name="maxItemLevel"
-                min={1}
                 max={100}
+                min={1}
+                name="maxItemLevel"
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
+                type="number"
                 value={values.maxItemLevel ?? ''}
               />
             </InputGroup>
@@ -350,20 +349,20 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             <InputGroup>
               <InputGroup.Text>Min</InputGroup.Text>
               <Form.Control
-                type="number"
-                name="minStackSize"
                 min={1}
+                name="minStackSize"
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
+                type="number"
                 value={values.minStackSize ?? ''}
               />
               <InputGroup.Text>Max</InputGroup.Text>
               <Form.Control
-                type="number"
-                name="maxStackSize"
                 min={1}
+                name="maxStackSize"
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
+                type="number"
                 value={values.maxStackSize ?? ''}
               />
             </InputGroup>
@@ -377,11 +376,11 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
                     {color}
                   </InputGroup.Text>
                   <Form.Control
-                    type="number"
-                    name={`minSockets.${color}`}
                     min={0}
+                    name={`minSockets.${color}`}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
+                    type="number"
                     value={values.minSockets?.[color] ?? ''}
                   />
                 </Fragment>
@@ -391,11 +390,11 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
           <Form.Group>
             <Form.Label>Minimum Links:</Form.Label>
             <Form.Control
-              type="number"
-              name="minLinks"
               min={1}
+              name="minLinks"
               onChange={handleChange}
               onKeyDown={handleKeyDown}
+              type="number"
               value={values.minLinks ?? ''}
             />
           </Form.Group>
@@ -405,18 +404,14 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
               {booleanFlags.map(({ label, field }) => {
                 const current = values[field] as boolean | undefined;
                 return (
-                  <Col xs={6} key={field} className="mb-1">
+                  <Col className="mb-1" key={field} xs={6}>
                     <Row>
-                      <Col xs={12} sm={4} className="d-flex align-items-center">
+                      <Col className="d-flex align-items-center" xs={4}>
                         <span className="me-2" style={{ fontSize: '0.85em' }}>
                           {label}:
                         </span>
                       </Col>
-                      <Col
-                        xs={12}
-                        sm={8}
-                        className="d-flex justify-content-center"
-                      >
+                      <Col className="d-flex justify-content-center" xs={8}>
                         <SplitButton
                           active={current !== undefined}
                           enabled={current === true}
@@ -433,49 +428,49 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             <Form.Label>Influences:</Form.Label>
             <Row>
               {influenceOptions.map((influence) => (
-                <Col xs={6} key={influence} className="mb-1">
+                <Col className="mb-1" key={influence} xs={6}>
                   <Form.Check
-                    type="checkbox"
+                    checked={values.influences?.includes(influence) ?? false}
                     label={
                       influence.charAt(0).toUpperCase() + influence.slice(1)
                     }
-                    checked={values.influences?.includes(influence) ?? false}
                     onChange={(e) =>
                       handleInfluenceChange(influence, e.target.checked)
                     }
+                    type="checkbox"
                   />
                 </Col>
               ))}
             </Row>
           </Form.Group>
         </Col>
-        <Col xs={12} sm={6} className="d-flex" style={{ flexWrap: 'wrap' }}>
+        <Col className="d-flex" sm={6} style={{ flexWrap: 'wrap' }} xs={12}>
           <Form.Group style={{ flexBasis: '100%' }}>
             <Form.Label>Queries:</Form.Label>
             {values.queries.map((query, index) =>
               query.type === 'range' ? (
                 <FilterRangeQueryRow
-                  key={query.id}
-                  query={query}
-                  isFirst={index === 0}
                   error={queryErrors?.[index]?.value}
-                  onValueChange={handleValueChange}
-                  onOperatorChange={handleOperatorChange}
-                  onNumberValueChange={handleNumberValueChange}
-                  onModeChange={handleModeChange}
-                  onRemove={handleRemove}
+                  isFirst={index === 0}
+                  key={query.id}
                   onKeyDown={handleKeyDown}
+                  onModeChange={handleModeChange}
+                  onNumberValueChange={handleNumberValueChange}
+                  onOperatorChange={handleOperatorChange}
+                  onRemove={handleRemove}
+                  onValueChange={handleValueChange}
+                  query={query}
                 />
               ) : (
                 <FilterQueryRow
-                  key={query.id}
-                  query={query}
-                  isFirst={index === 0}
                   error={queryErrors?.[index]?.value}
-                  onValueChange={handleValueChange}
+                  isFirst={index === 0}
+                  key={query.id}
+                  onKeyDown={handleKeyDown}
                   onModeChange={handleModeChange}
                   onRemove={handleRemove}
-                  onKeyDown={handleKeyDown}
+                  onValueChange={handleValueChange}
+                  query={query}
                 />
               )
             )}
@@ -484,10 +479,10 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             className="align-self-start text-end"
             style={{ flexBasis: '100%' }}
           >
-            <Button variant="success" size="sm" onClick={handleAddQuery}>
+            <Button onClick={handleAddQuery} size="sm" variant="success">
               <FontAwesomeIcon icon={faPlusCircle} /> Add Query
             </Button>{' '}
-            <Button variant="info" size="sm" onClick={handleAddRangeQuery}>
+            <Button onClick={handleAddRangeQuery} size="sm" variant="info">
               <FontAwesomeIcon icon={faPlusCircle} /> Add Range Query
             </Button>
           </Form.Group>
@@ -498,9 +493,9 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             <ButtonGroup>
               <Button
                 className="mb-4 me-2"
-                variant="secondary"
-                type="button"
                 onClick={handleReset}
+                type="button"
+                variant="secondary"
               >
                 <FontAwesomeIcon icon={faRotateLeft} /> Clear
               </Button>

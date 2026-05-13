@@ -36,11 +36,11 @@ if (rootElem) {
 
   root.render(
     <HashRouter>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link href="https://fonts.googleapis.com" rel="preconnect" />
       <link
-        rel="preconnect"
-        href="https://fonts.gstatic.com"
         crossOrigin="anonymous"
+        href="https://fonts.gstatic.com"
+        rel="preconnect"
       />
       <link
         href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap"
