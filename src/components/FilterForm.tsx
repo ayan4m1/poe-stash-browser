@@ -418,8 +418,8 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
                         className="d-flex justify-content-center"
                       >
                         <SplitButton
-                          active={current === true}
-                          enabled={current !== undefined}
+                          active={current !== undefined}
+                          enabled={current === true}
                           onChange={handleFlagChange(field)}
                         />
                       </Col>

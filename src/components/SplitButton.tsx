@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Button, ButtonGroup } from 'react-bootstrap';
 
 interface IProps {
@@ -10,7 +10,7 @@ interface IProps {
 export default function SplitButton({ active, enabled, onChange }: IProps) {
   const handleChange = useCallback(
     (value: boolean) => {
-      if (value === active || !enabled) {
+      if (value === enabled || !active) {
         // if current value and active differ, toggle value
         onChange(true, !value);
       } else {
