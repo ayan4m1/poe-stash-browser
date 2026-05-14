@@ -10,12 +10,10 @@ interface IProps {
 export default function SplitButton({ active, enabled, onChange }: IProps) {
   const handleChange = useCallback(
     (value: boolean) => {
-      if (value === enabled || !active) {
-        // if current value and active differ, toggle value
-        onChange(true, !value);
-      } else {
-        // toggle enabled if value and active are the same
+      if (active && value === enabled) {
         onChange(false);
+      } else {
+        onChange(true, value);
       }
     },
     [onChange, active, enabled]
@@ -25,13 +23,13 @@ export default function SplitButton({ active, enabled, onChange }: IProps) {
     <ButtonGroup>
       <Button
         onClick={() => handleChange(true)}
-        variant={active || !enabled ? 'outline-success' : 'success'}
+        variant={active && enabled ? 'success' : 'outline-success'}
       >
         Yes
       </Button>
       <Button
         onClick={() => handleChange(false)}
-        variant={active && enabled ? 'danger' : 'outline-danger'}
+        variant={active && !enabled ? 'danger' : 'outline-danger'}
       >
         No
       </Button>
