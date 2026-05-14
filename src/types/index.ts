@@ -85,7 +85,8 @@ export enum SocketColor {
   Green = 'G',
   Blue = 'B',
   White = 'W',
-  Abyss = 'A'
+  Abyss = 'A',
+  Any = '*'
 }
 
 export type ItemProperty = {
@@ -267,6 +268,7 @@ export type MinSocketColors = {
   [SocketColor.Blue]?: number;
   [SocketColor.White]?: number;
   [SocketColor.Abyss]?: number;
+  [SocketColor.Any]?: number;
 };
 
 type CompiledTextQuery = {

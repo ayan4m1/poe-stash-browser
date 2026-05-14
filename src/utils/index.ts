@@ -34,8 +34,20 @@ export const socketColorStyles: Record<SocketColor, React.CSSProperties> = {
   [SocketColor.Green]: { backgroundColor: '#2e7d32', color: '#fefefe' },
   [SocketColor.Blue]: { backgroundColor: '#1565c0', color: '#fefefe' },
   [SocketColor.White]: { backgroundColor: '#e0e0e0', color: '#000' },
-  [SocketColor.Abyss]: { backgroundColor: '#262323', color: '#fefefe' }
+  [SocketColor.Abyss]: { backgroundColor: '#262323', color: '#fefefe' },
+  [SocketColor.Any]: { backgroundColor: '#fff', color: '#000' }
 };
+
+export const influenceOptions = [
+  'elder',
+  'shaper',
+  'searing',
+  'tangled',
+  'crusader',
+  'redeemer',
+  'hunter',
+  'warlord'
+];
 
 export const rarityColors = {
   [ItemRarity.Normal]: '#fefefe',
@@ -269,11 +281,19 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
       colorCounts[socket.sColour] = (colorCounts[socket.sColour] ?? 0) + 1;
     }
     if (
-      Object.entries(filter.minSockets).some(
-        ([colour, min]) => min && (colorCounts[colour] ?? 0) < min
-      )
+      Object.entries(filter.minSockets)
+        .filter(([val]) => val !== SocketColor.Any)
+        .some(([colour, min]) => min && (colorCounts[colour] ?? 0) < min)
     ) {
       result = false;
+    }
+    if (filter.minSockets[SocketColor.Any] !== undefined) {
+      if (
+        filter.minSockets[SocketColor.Any] >
+        Object.entries(colorCounts).reduce((prev, [, count]) => prev + count, 0)
+      ) {
+        result = false;
+      }
     }
   }
   if (filter.minLinks) {

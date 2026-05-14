@@ -33,7 +33,11 @@ import {
   RangeOperator,
   SocketColor
 } from '../types';
-import { itemFrameTypeNames, socketColorStyles } from '../utils';
+import {
+  influenceOptions,
+  itemFrameTypeNames,
+  socketColorStyles
+} from '../utils';
 import SplitButton from './SplitButton';
 
 interface FilterFormProps {
@@ -82,17 +86,6 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
     { label: 'Mirrored', field: 'mirrored' }
   ];
 
-  const influenceOptions = [
-    'elder',
-    'shaper',
-    'searing',
-    'tangled',
-    'crusader',
-    'redeemer',
-    'hunter',
-    'warlord'
-  ];
-
   const initialValues = useMemo<FilterFormType>(
     () => ({
       rarity: undefined,
@@ -103,7 +96,8 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
         [SocketColor.Green]: undefined,
         [SocketColor.Blue]: undefined,
         [SocketColor.White]: undefined,
-        [SocketColor.Abyss]: undefined
+        [SocketColor.Abyss]: undefined,
+        [SocketColor.Any]: undefined
       } as MinSocketColors,
       minLinks: undefined,
       minItemLevel: undefined,
@@ -370,21 +364,36 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
           <Form.Group>
             <Form.Label>Minimum Sockets:</Form.Label>
             <InputGroup>
-              {Object.values(SocketColor).map((color) => (
-                <Fragment key={color}>
-                  <InputGroup.Text style={socketColorStyles[color]}>
-                    {color}
-                  </InputGroup.Text>
-                  <Form.Control
-                    min={0}
-                    name={`minSockets.${color}`}
-                    onChange={handleChange}
-                    onKeyDown={handleKeyDown}
-                    type="number"
-                    value={values.minSockets?.[color] ?? ''}
-                  />
-                </Fragment>
-              ))}
+              <InputGroup.Text>Any Color</InputGroup.Text>
+              <Form.Control
+                max={6}
+                min={0}
+                name="minSockets.*"
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                type="number"
+                value={values.minSockets?.[SocketColor.Any]}
+              />
+            </InputGroup>
+            <InputGroup>
+              {Object.values(SocketColor)
+                .filter((val) => val !== SocketColor.Any)
+                .map((color) => (
+                  <Fragment key={color}>
+                    <InputGroup.Text style={socketColorStyles[color]}>
+                      {color}
+                    </InputGroup.Text>
+                    <Form.Control
+                      max={6}
+                      min={0}
+                      name={`minSockets.${color}`}
+                      onChange={handleChange}
+                      onKeyDown={handleKeyDown}
+                      type="number"
+                      value={values.minSockets?.[color] ?? ''}
+                    />
+                  </Fragment>
+                ))}
             </InputGroup>
           </Form.Group>
           <Form.Group>
