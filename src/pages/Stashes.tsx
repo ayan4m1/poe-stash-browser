@@ -145,11 +145,11 @@ export default function Stashes() {
                 style={{ width: 'auto' }}
                 value={sortKey}
               >
-                <option value="none">Default order</option>
-                <option value="name">Name A→Z</option>
-                <option value="ilvl">Item Level ↓</option>
-                <option value="stashTab">Stash Tab A→Z</option>
-                <option value="stackSize">Stack Size ↓</option>
+                <option value="none">Default</option>
+                <option value="name">Name A-Z</option>
+                <option value="ilvl">Item Level</option>
+                <option value="stashTab">Stash Tab A-Z</option>
+                <option value="stackSize">Stack Size</option>
               </Form.Select>
               <Button onClick={handleGridClick}>
                 <FontAwesomeIcon icon={faGridVertical} />
