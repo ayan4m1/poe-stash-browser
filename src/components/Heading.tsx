@@ -26,8 +26,8 @@ export default function Heading() {
   const { logIn, token } = useAuthContext();
   const { data } = useLeagues();
   const handleLeagueChange = useCallback(() => {
-    const league = data.leagues.find(
-      (league) => league.id === selectRef.current.value
+    const league = data?.leagues.find(
+      (league) => league.id === selectRef.current?.value
     );
 
     if (!league) {
@@ -57,7 +57,7 @@ export default function Heading() {
               <Nav.Item>
                 <InputGroup>
                   <Form.Select ref={selectRef}>
-                    {data.leagues.map((item) => (
+                    {data?.leagues.map((item) => (
                       <option key={item.id} value={item.id}>
                         {item.name}
                       </option>
