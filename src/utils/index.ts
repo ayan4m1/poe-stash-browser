@@ -304,7 +304,7 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
   }
 
   if (filter.identified !== undefined) {
-    result = result && item.identified === filter.identified;
+    result = result && (item.identified === true) === filter.identified;
   }
 
   if (filter.veiled !== undefined) {
