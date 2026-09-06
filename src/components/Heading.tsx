@@ -52,7 +52,7 @@ export default function Heading() {
             <FontAwesomeIcon icon={faGears} /> Settings
           </Nav.Link>
         </Nav>
-        <Nav className="ms-auto me-4">
+        <Nav className="ms-auto me-2">
           {Boolean(data) && (
             <Fragment>
               <Nav.Item>
