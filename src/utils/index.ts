@@ -12,7 +12,7 @@ import {
   SocketColor
 } from '../types';
 
-export const itemFrameTypeNames = {
+export const itemFrameTypeNames: Record<ItemFrameType, string> = {
   [ItemFrameType.Normal]: 'Normal',
   [ItemFrameType.Magic]: 'Magic',
   [ItemFrameType.Rare]: 'Rare',
@@ -56,6 +56,10 @@ export const rarityColors = {
   [ItemRarity.Unique]: '#ae6135'
 };
 
+export const modColor = '#7986cb';
+export const craftedModColor = '#b4b4ff';
+export const unidentifiedColor = '#d20000';
+
 export const baseAuthUrl = 'https://www.pathofexile.com/';
 export const baseApiUrl = 'https://api.pathofexile.com/';
 
@@ -98,9 +102,8 @@ export const buildItemText = (item: Item) => {
     : []) {
     lines.push(interpolateProperties(requirement, true));
   }
-  lines.push(item.implicitMods?.join('\n') ?? '');
-  lines.push(item.explicitMods?.join('\n') ?? '');
-  lines.push(item.craftedMods?.join('\n') ?? '');
+  lines.push(item.implicitMods?.map((mod) => mod.description).join('\n') ?? '');
+  lines.push(item.explicitMods?.map((mod) => mod.description).join('\n') ?? '');
 
   return lines.join('\n');
 };
@@ -264,7 +267,7 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
     }
   }
 
-  if (filter.frameType && filter.frameType != item.frameType) {
+  if (filter.frameTypeId && filter.frameTypeId !== item.frameTypeId) {
     result = false;
   }
 
@@ -367,4 +370,4 @@ export const shouldUseSlimDisplay = (item: Item) =>
     ItemFrameType.Currency,
     ItemFrameType.DivinationCard,
     ItemFrameType.Gem
-  ].includes(item.frameType);
+  ].includes(item.frameTypeId);

@@ -90,7 +90,7 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
     () => ({
       rarity: undefined,
       itemType: undefined,
-      frameType: undefined,
+      frameTypeId: undefined,
       minSockets: {
         [SocketColor.Red]: undefined,
         [SocketColor.Green]: undefined,
@@ -276,9 +276,9 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
           <Form.Group>
             <Form.Label>Frame Type:</Form.Label>
             <Form.Select
-              name="frameType"
+              name="frameTypeId"
               onChange={handleSelectChange}
-              value={values.frameType}
+              value={values.frameTypeId}
             >
               <option value="any">Any</option>
               {Object.entries(itemFrameTypeNames).map(([key, val]) => (

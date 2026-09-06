@@ -39,20 +39,20 @@ export enum ItemRarity {
 }
 
 export enum ItemFrameType {
-  Normal = 0,
-  Magic,
-  Rare,
-  Unique,
-  Gem,
-  Currency,
-  DivinationCard,
-  Quest,
-  Prophecy,
-  Foil,
-  SupporterFoil,
-  Necropolis,
-  Gold,
-  Breach
+  Normal = 'Normal',
+  Magic = 'Magic',
+  Rare = 'Rare',
+  Unique = 'Unique',
+  Gem = 'Gem',
+  Currency = 'Currency',
+  DivinationCard = 'DivinationCard',
+  Quest = 'Quest',
+  Prophecy = 'Prophecy',
+  Foil = 'Foil',
+  SupporterFoil = 'SupporterFoil',
+  Necropolis = 'Necropolis',
+  Gold = 'Gold',
+  Breach = 'Breach'
 }
 
 export enum ItemType {
@@ -103,6 +103,17 @@ export type ItemSocket = {
   group: number;
   attr: 'S' | 'I' | 'D';
   sColour: SocketColor;
+};
+
+export type ItemMod = {
+  description: string;
+  flags?: {
+    fractured?: true;
+    mutated?: true;
+    crafted?: true;
+    desecrated?: true;
+    vestigial?: true;
+  };
 };
 
 export type Item = {
@@ -169,12 +180,12 @@ export type Item = {
   }[];
   enchantMods?: string[];
   scourgeMods?: string[];
-  implicitMods?: string[];
+  implicitMods?: ItemMod[];
   ultimatumMods?: {
     type: string;
     tier: number;
   }[];
-  explicitMods?: string[];
+  explicitMods?: ItemMod[];
   craftedMods?: string[];
   fracturedMods?: string[];
   mutatedMods?: string[];
@@ -207,7 +218,7 @@ export type Item = {
     // TODO: nodes
   };
   ruthless?: true;
-  frameType: ItemFrameType;
+  frameTypeId: ItemFrameType;
   artFilename: string;
   hybrid?: {
     isVaalGem?: boolean;
@@ -290,7 +301,7 @@ export type CompiledQuery = CompiledTextQuery | CompiledRangeQuery;
 export type FilterForm = {
   rarity?: ItemRarity;
   itemType?: ItemType;
-  frameType?: ItemFrameType;
+  frameTypeId?: ItemFrameType;
   baseType?: string;
   minSockets?: MinSocketColors;
   minLinks?: number;
