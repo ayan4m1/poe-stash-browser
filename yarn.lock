@@ -1979,6 +1979,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/electron-squirrel-startup@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@types/electron-squirrel-startup@npm:1.0.2"
+  checksum: 10c0/d6d6b7b26ef1a0814f7fec15649032d3d518c961155ac3b8e08408d1fff6b08d0e1597ef2926ede34e37dee091129b72e064ba711820a91b3d9f12574a3666a8
+  languageName: node
+  linkType: hard
+
 "@types/eslint-scope@npm:^3.7.7":
   version: 3.7.7
   resolution: "@types/eslint-scope@npm:3.7.7"
@@ -8753,6 +8760,7 @@ __metadata:
     "@tanstack/react-query": "npm:^5.102.8"
     "@tanstack/react-query-persist-client": "npm:^5.102.8"
     "@types/bootstrap": "npm:^5"
+    "@types/electron-squirrel-startup": "npm:^1.0.2"
     "@types/lodash": "npm:^4"
     "@types/react": "npm:^19.2.18"
     "@types/react-dom": "npm:^19"
