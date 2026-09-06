@@ -14,7 +14,5 @@ This is a cross-platform desktop utility designed to take the role of the legacy
 
 ## Roadmap
 
-- Improve rate limit handling for faster fetches
 - Save/load search queries
 - Highlight mod on item that matched query
-- Auto-refresh search every X seconds
