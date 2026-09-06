@@ -100,6 +100,8 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
         [SocketColor.Any]: undefined
       } as MinSocketColors,
       minLinks: undefined,
+      minRequiredLevel: undefined,
+      maxRequiredLevel: undefined,
       minItemLevel: undefined,
       maxItemLevel: undefined,
       minStackSize: undefined,
@@ -311,6 +313,31 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
               type="text"
               value={values.baseType}
             />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Required Level:</Form.Label>
+            <InputGroup>
+              <InputGroup.Text>Min</InputGroup.Text>
+              <Form.Control
+                max={100}
+                min={1}
+                name="minRequiredLevel"
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                type="number"
+                value={values.minRequiredLevel ?? ''}
+              />
+              <InputGroup.Text>Max</InputGroup.Text>
+              <Form.Control
+                max={100}
+                min={1}
+                name="maxRequiredLevel"
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                type="number"
+                value={values.maxRequiredLevel ?? ''}
+              />
+            </InputGroup>
           </Form.Group>
           <Form.Group>
             <Form.Label>Item Level:</Form.Label>

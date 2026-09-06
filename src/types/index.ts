@@ -305,6 +305,8 @@ export type FilterForm = {
   baseType?: string;
   minSockets?: MinSocketColors;
   minLinks?: number;
+  minRequiredLevel?: number;
+  maxRequiredLevel?: number;
   minItemLevel?: number;
   maxItemLevel?: number;
   minStackSize?: number;

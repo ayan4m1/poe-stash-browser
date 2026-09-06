@@ -208,6 +208,20 @@ const queryMatches = (
   });
 };
 
+const getRequiredLevel = (item: Item): number | undefined => {
+  const requirement = item.requirements?.find((req) =>
+    req.name.toLowerCase().includes('level')
+  );
+
+  if (!requirement?.values.length) {
+    return undefined;
+  }
+
+  const level = parseInt(requirement.values[0][0], 10);
+
+  return isNaN(level) ? undefined : level;
+};
+
 const getLinkCount = (item: Item) => {
   let links = 0;
 
@@ -312,6 +326,21 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
 
   if (filter.maxItemLevel !== undefined && item.ilvl > filter.maxItemLevel) {
     result = false;
+  }
+
+  if (filter.minRequiredLevel || filter.maxRequiredLevel) {
+    const requiredLevel = getRequiredLevel(item);
+
+    if (requiredLevel === undefined) {
+      result = false;
+    } else {
+      if (filter.minRequiredLevel && requiredLevel < filter.minRequiredLevel) {
+        result = false;
+      }
+      if (filter.maxRequiredLevel && requiredLevel > filter.maxRequiredLevel) {
+        result = false;
+      }
+    }
   }
 
   if (filter.minStackSize !== undefined && item.stackSize !== undefined) {
