@@ -73,14 +73,14 @@ export const authConfig: TAuthConfig = {
   decodeToken: false
 };
 
-export const parseRateLimitRule = (rule: string) => {
-  const parts = rule.split(':');
+export const parseRateLimitRule = (rule: string): [number, number, number] => {
+  const parts = rule.split(':').map((part) => parseInt(part, 10));
 
-  if (parts.length !== 3) {
-    return [1, 10];
+  if (parts.length !== 3 || parts.some((part) => isNaN(part))) {
+    return [1, 10, 0];
   }
 
-  return [parseInt(parts[0], 10), parseInt(parts[1], 10)];
+  return [parts[0], parts[1], parts[2]];
 };
 
 export const buildItemText = (item: Item) => {
