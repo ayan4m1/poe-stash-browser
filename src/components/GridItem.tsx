@@ -34,7 +34,10 @@ export default function GridItem({ item }: IProps) {
           <Card.Header style={{ backgroundColor: '#262323' }}>
             <Card.Title className="text-center" style={{ color }}>
               <p>
-                <img src={item.icon} />
+                <img
+                  src={item.icon}
+                  style={{ minHeight: '141px', objectFit: 'scale-down' }}
+                />
               </p>
               <p>
                 {item.name} {item.typeLine}{' '}
