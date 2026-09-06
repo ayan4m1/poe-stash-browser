@@ -75,17 +75,17 @@ const validate = (values: FilterFormType) => {
   return errors;
 };
 
-export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
-  const booleanFlags: { label: string; field: keyof FilterFormType }[] = [
-    { label: 'Corrupted', field: 'corrupted' },
-    { label: 'Identified', field: 'identified' },
-    { label: 'Veiled', field: 'veiled' },
-    { label: 'Synthesised', field: 'synthesised' },
-    { label: 'Fractured', field: 'fractured' },
-    { label: 'Replica', field: 'replica' },
-    { label: 'Mirrored', field: 'mirrored' }
-  ];
+const booleanFlags: { label: string; field: keyof FilterFormType }[] = [
+  { label: 'Corrupted', field: 'corrupted' },
+  { label: 'Identified', field: 'identified' },
+  { label: 'Veiled', field: 'veiled' },
+  { label: 'Synthesised', field: 'synthesised' },
+  { label: 'Fractured', field: 'fractured' },
+  { label: 'Replica', field: 'replica' },
+  { label: 'Mirrored', field: 'mirrored' }
+];
 
+export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
   const initialValues = useMemo<FilterFormType>(
     () => ({
       rarity: undefined,
@@ -252,8 +252,7 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
   );
 
   const queryErrors = errors?.queries as
-    | Array<Record<string, string>>
-    | undefined;
+    Array<Record<string, string>> | undefined;
 
   return (
     <Form onSubmit={handleSubmit}>
