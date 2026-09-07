@@ -6,6 +6,13 @@ import useAuthContext from './useAuthContext';
 import { StashResponse, StashTab } from '../types';
 import { baseApiUrl } from '../utils';
 
+// Without a combine function, useQueries maps a brand new results array on
+// every render, so anything memoized on it - like the saved item list on the
+// Items page - never keeps its identity. Combining routes the array through
+// replaceEqualDeep instead, which hands back the previous array while nothing
+// has actually changed.
+const combineQueries = <T>(results: T[]) => results;
+
 const annotateStash = (result: StashResponse) => {
   result.stash.items = result.stash.items?.map((item) => ({
     ...item,
@@ -100,7 +107,8 @@ export default function useStashItems(league?: string, stashes?: StashTab[]) {
 
             return annotateStash((await response.json()) as StashResponse);
           })
-      })) ?? []
+      })) ?? [],
+    combine: combineQueries
   });
 
   const pendingCount = queries.filter((q) => !q.isFetched || q.isStale).length;
