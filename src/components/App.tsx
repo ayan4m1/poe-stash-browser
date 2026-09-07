@@ -1,14 +1,12 @@
 import { lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
-import { QueryClient } from '@tanstack/react-query';
 import { AuthProvider } from 'react-oauth2-code-pkce';
 import { HashRouter, Route, Routes } from 'react-router-dom';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 
-import { authConfig } from '../utils';
+import QueryProvider from './QueryProvider';
 import AppContextProvider from './AppContext';
 import SuspenseFallback from './SuspenseFallback';
+import { authConfig } from '../utils';
 
 import '../index.scss';
 
@@ -17,19 +15,6 @@ const Items = lazy(() => import('../pages/Items'));
 const Stashes = lazy(() => import('../pages/Stashes'));
 const Settings = lazy(() => import('../pages/Settings'));
 
-const gcTime =
-  1000 * 3600 * parseInt(localStorage.getItem('app.cacheHours') ?? '24', 10);
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      gcTime,
-      staleTime: 6000 * 3600,
-      refetchOnMount: false,
-      refetchOnReconnect: false
-    }
-  }
-});
-const persister = createAsyncStoragePersister({ storage: localStorage });
 const rootElem = document.getElementById('root');
 
 if (rootElem) {
@@ -49,19 +34,16 @@ if (rootElem) {
       ></link>
       <Suspense fallback={<SuspenseFallback />}>
         <AppContextProvider>
-          <PersistQueryClientProvider
-            client={queryClient}
-            persistOptions={{ persister }}
-          >
-            <AuthProvider authConfig={authConfig}>
+          <AuthProvider authConfig={authConfig}>
+            <QueryProvider>
               <Routes>
                 <Route element={<Home />} index />
                 <Route element={<Items />} path="/items" />
                 <Route element={<Stashes />} path="/stashes" />
                 <Route element={<Settings />} path="/settings" />
               </Routes>
-            </AuthProvider>
-          </PersistQueryClientProvider>
+            </QueryProvider>
+          </AuthProvider>
         </AppContextProvider>
       </Suspense>
     </HashRouter>
