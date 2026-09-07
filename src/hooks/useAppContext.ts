@@ -1,20 +1,17 @@
 import { createContext, Dispatch, SetStateAction, useContext } from 'react';
 
-import { League, StashTab } from '../types';
+import { League } from '../types';
 
 export interface IAppContext {
   savedItems?: string[];
   selectedLeague?: League;
-  selectedStash?: StashTab;
-  setSavedItems: Dispatch<SetStateAction<string[] | undefined>>;
+  setSavedItems: Dispatch<SetStateAction<string[]>>;
   setSelectedLeague: Dispatch<SetStateAction<League | undefined>>;
-  setSelectedStash: Dispatch<SetStateAction<StashTab | undefined>>;
 }
 
 export const AppContext = createContext<IAppContext>({
   setSavedItems: () => {},
-  setSelectedLeague: () => {},
-  setSelectedStash: () => {}
+  setSelectedLeague: () => {}
 });
 
 export default function useAppContext() {

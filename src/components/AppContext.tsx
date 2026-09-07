@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 
-import { League, StashTab } from '../types';
+import { League } from '../types';
 import { AppContext } from '../hooks/useAppContext';
 
 interface IProps {
@@ -14,7 +14,6 @@ export default function AppContextProvider({ children }: IProps) {
     ) as unknown as string[]
   );
   const [selectedLeague, setSelectedLeague] = useState<League>();
-  const [selectedStash, setSelectedStash] = useState<StashTab>();
 
   useEffect(() => {
     localStorage.setItem('app.savedItems', JSON.stringify(savedItems));
@@ -26,9 +25,7 @@ export default function AppContextProvider({ children }: IProps) {
         savedItems,
         setSavedItems,
         selectedLeague,
-        setSelectedLeague,
-        selectedStash,
-        setSelectedStash
+        setSelectedLeague
       }}
     >
       {children}
