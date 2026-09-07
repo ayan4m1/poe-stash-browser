@@ -14,7 +14,8 @@ import {
   faDoorOpen,
   faGears,
   faListSquares,
-  faSackDollar
+  faSackDollar,
+  faSave
 } from '@fortawesome/free-solid-svg-icons';
 
 import useLeagues from '../hooks/useLeagues';
@@ -47,6 +48,9 @@ export default function Heading() {
         <Nav>
           <Nav.Link as={Link} className="nav-item" to="/stashes">
             <FontAwesomeIcon icon={faListSquares} /> Stashes
+          </Nav.Link>
+          <Nav.Link as={Link} className="nav-item" to="/items">
+            <FontAwesomeIcon icon={faSave} /> Items
           </Nav.Link>
           <Nav.Link as={Link} className="nav-item" to="/settings">
             <FontAwesomeIcon icon={faGears} /> Settings

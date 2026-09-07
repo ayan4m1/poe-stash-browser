@@ -13,6 +13,7 @@ import SuspenseFallback from './SuspenseFallback';
 import '../index.scss';
 
 const Home = lazy(() => import('../pages/Home'));
+const Items = lazy(() => import('../pages/Items'));
 const Stashes = lazy(() => import('../pages/Stashes'));
 const Settings = lazy(() => import('../pages/Settings'));
 
@@ -55,6 +56,7 @@ if (rootElem) {
             <AuthProvider authConfig={authConfig}>
               <Routes>
                 <Route element={<Home />} index />
+                <Route element={<Items />} path="/items" />
                 <Route element={<Stashes />} path="/stashes" />
                 <Route element={<Settings />} path="/settings" />
               </Routes>

@@ -18,6 +18,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faMagnifyingGlass,
   faPlusCircle,
+  faRefresh,
   faRotateLeft
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -42,6 +43,7 @@ import SplitButton from './SplitButton';
 
 interface FilterFormProps {
   onFilter: (values: FilterFormType) => void;
+  onRefetchClick: () => void;
 }
 
 const validate = (values: FilterFormType) => {
@@ -85,7 +87,10 @@ const booleanFlags: { label: string; field: keyof FilterFormType }[] = [
   { label: 'Mirrored', field: 'mirrored' }
 ];
 
-export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
+export default function FilterForm({
+  onFilter: onSubmit,
+  onRefetchClick
+}: FilterFormProps) {
   const initialValues = useMemo<FilterFormType>(
     () => ({
       rarity: undefined,
@@ -525,16 +530,14 @@ export default function FilterForm({ onFilter: onSubmit }: FilterFormProps) {
             className="mt-4 align-self-end text-end"
             style={{ flexBasis: '100%' }}
           >
-            <ButtonGroup>
-              <Button
-                className="mb-4 me-2"
-                onClick={handleReset}
-                type="button"
-                variant="secondary"
-              >
+            <ButtonGroup className="mb-4">
+              <Button onClick={onRefetchClick} variant="danger">
+                <FontAwesomeIcon icon={faRefresh} /> Refetch
+              </Button>
+              <Button onClick={handleReset} type="button" variant="secondary">
                 <FontAwesomeIcon icon={faRotateLeft} /> Clear
               </Button>
-              <Button className="mb-4" type="submit">
+              <Button type="submit">
                 <FontAwesomeIcon icon={faMagnifyingGlass} /> Search
               </Button>
             </ButtonGroup>
