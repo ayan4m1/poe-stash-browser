@@ -5,12 +5,13 @@ import Layout from '../components/Layout';
 import useStashes from '../hooks/useStashes';
 import useAppContext from '../hooks/useAppContext';
 import useStashItems from '../hooks/useStashItems';
+import useSortedItems from '../hooks/useSortedItems';
 import {
   FilterForm as FilterFormType,
   Item as ItemType,
   SortKey
 } from '../types';
-import { itemMatchesFilter, sortItems } from '../utils';
+import { itemMatchesFilter } from '../utils';
 import QueryProgress from '../components/QueryProgress';
 import SearchResults from '../components/SearchResults';
 
@@ -60,10 +61,7 @@ export default function Stashes() {
     },
     [doneFetching, queries]
   );
-  const sortedItems = useMemo(
-    () => sortItems(filteredItems, sortKey),
-    [filteredItems, sortKey]
-  );
+  const sortedItems = useSortedItems(filteredItems, sortKey);
 
   return (
     <Layout>

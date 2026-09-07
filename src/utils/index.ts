@@ -9,9 +9,10 @@ import {
   CompiledQuery,
   ItemFrameType,
   ItemRarity,
-  SocketColor,
-  SortKey
+  SocketColor
 } from '../types';
+
+export * from './sorting';
 
 export const itemFrameTypeNames: Record<ItemFrameType, string> = {
   [ItemFrameType.Normal]: 'Normal',
@@ -401,31 +402,6 @@ export const shouldUseSlimDisplay = (item: Item) =>
     ItemFrameType.DivinationCard,
     ItemFrameType.Gem
   ].includes(item.frameTypeId);
-
-export const sortItems = (items: Item[] | null, sortKey: SortKey): Item[] => {
-  if (!items) {
-    return [];
-  }
-
-  if (sortKey === 'none') {
-    return items;
-  }
-
-  return [...items].sort((a, b) => {
-    switch (sortKey) {
-      case 'name':
-        return (a.name || a.typeLine).localeCompare(b.name || b.typeLine);
-      case 'ilvl':
-        return b.ilvl - a.ilvl;
-      case 'stashTab':
-        return (a.stashTab ?? '').localeCompare(b.stashTab ?? '');
-      case 'stackSize':
-        return (b.stackSize ?? 0) - (a.stackSize ?? 0);
-      default:
-        return 0;
-    }
-  });
-};
 
 export const cannotSaveTypes: ItemFrameType[] = [
   ItemFrameType.Currency,

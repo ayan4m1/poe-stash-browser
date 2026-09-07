@@ -62,6 +62,12 @@ const config: ForgeConfig = {
             preload: {
               js: './src/preload.ts'
             }
+          },
+          // No html, so Forge bundles this as a standalone script at
+          // .webpack/renderer/sort_worker/index.js for use as a web worker.
+          {
+            js: './src/workers/sort.ts',
+            name: 'sort_worker'
           }
         ]
       }

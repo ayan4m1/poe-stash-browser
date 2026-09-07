@@ -4,10 +4,10 @@ import Layout from '../components/Layout';
 import useStashItems from '../hooks/useStashItems';
 import useAppContext from '../hooks/useAppContext';
 import useStashes from '../hooks/useStashes';
+import useSortedItems from '../hooks/useSortedItems';
 import QueryProgress from '../components/QueryProgress';
 import SearchResults from '../components/SearchResults';
 import { Item, SortKey } from '../types';
-import { sortItems } from '../utils';
 
 export default function Items() {
   const [sortKey, setSortKey] = useState<SortKey>('none');
@@ -50,10 +50,7 @@ export default function Items() {
 
     return result;
   }, [rawSavedItems, queries]);
-  const sortedItems = useMemo(
-    () => sortItems(savedItems, sortKey),
-    [savedItems, sortKey]
-  );
+  const sortedItems = useSortedItems(savedItems, sortKey);
 
   return (
     <Layout>
