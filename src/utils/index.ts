@@ -11,7 +11,10 @@ import {
   ItemRarity,
   SocketColor
 } from '../types';
+import { getItemClass } from './itemClass';
 
+export * from './itemClass';
+export * from './ninja';
 export * from './sorting';
 
 export const itemFrameTypeNames: Record<ItemFrameType, string> = {
@@ -276,11 +279,7 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
   }
 
   if (filter.itemType) {
-    if (!item.properties?.length) {
-      result = false;
-    } else {
-      result = result && item.properties[0].name === filter.itemType;
-    }
+    result = result && getItemClass(item) === filter.itemType;
   }
 
   if (filter.frameTypeId && filter.frameTypeId !== item.frameTypeId) {

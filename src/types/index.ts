@@ -276,6 +276,69 @@ export type StashResponse = {
   stash: StashTab;
 };
 
+/** Predicate deciding whether an item belongs to some category. */
+export type ItemMatcher = (item: Item) => boolean;
+
+/** `type` values for the poe.ninja PoE 1 stash item overview endpoint. */
+export enum NinjaItemType {
+  Wombgift = 'Wombgift',
+  Corpse = 'Corpse',
+  Incubator = 'Incubator',
+  UniqueWeapon = 'UniqueWeapon',
+  UniqueArmour = 'UniqueArmour',
+  UniqueAccessory = 'UniqueAccessory',
+  UniqueFlask = 'UniqueFlask',
+  UniqueJewel = 'UniqueJewel',
+  ForbiddenJewel = 'ForbiddenJewel',
+  ShrineBelt = 'ShrineBelt',
+  UniqueTincture = 'UniqueTincture',
+  UniqueRelic = 'UniqueRelic',
+  SkillGem = 'SkillGem',
+  ImbuedGem = 'ImbuedGem',
+  ClusterJewel = 'ClusterJewel',
+  Map = 'Map',
+  BlightedMap = 'BlightedMap',
+  BlightRavagedMap = 'BlightRavagedMap',
+  UniqueMap = 'UniqueMap',
+  ValdoMap = 'ValdoMap',
+  Invitation = 'Invitation',
+  Memory = 'Memory',
+  IncursionTemple = 'IncursionTemple',
+  ScryingOrb = 'ScryingOrb',
+  BaseType = 'BaseType',
+  Flask = 'Flask',
+  Beast = 'Beast',
+  Vial = 'Vial'
+}
+
+/** `type` values for the poe.ninja PoE 1 currency exchange overview endpoint. */
+export enum NinjaExchangeType {
+  Currency = 'Currency',
+  Fragment = 'Fragment',
+  Runegraft = 'Runegraft',
+  AllflameEmber = 'AllflameEmber',
+  Tattoo = 'Tattoo',
+  Omen = 'Omen',
+  DjinnCoin = 'DjinnCoin',
+  Ducat = 'Ducat',
+  EnshroudingCrystal = 'EnshroudingCrystal',
+  DivinationCard = 'DivinationCard',
+  Artifact = 'Artifact',
+  Oil = 'Oil',
+  DeliriumOrb = 'DeliriumOrb',
+  Scarab = 'Scarab',
+  Astrolabe = 'Astrolabe',
+  Fossil = 'Fossil',
+  Resonator = 'Resonator',
+  Essence = 'Essence'
+}
+
+/** `type` values for the poe.ninja PoE 1 stash currency overview endpoint. */
+export enum NinjaCurrencyType {
+  Currency = 'Currency',
+  Fragment = 'Fragment'
+}
+
 export type BooleanMode = 'and' | 'or' | 'not';
 
 export type FilterQueryType = 'text' | 'range';
