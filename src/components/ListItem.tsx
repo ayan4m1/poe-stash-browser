@@ -1,6 +1,5 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
-  Button,
   Card,
   Col,
   Container,
@@ -8,20 +7,20 @@ import {
   Row,
   Tooltip
 } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRemove, faSave } from '@fortawesome/free-solid-svg-icons';
 
 import ModList from './ModList';
+import SaveButton from './SaveButton';
 import useAppContext from '../hooks/useAppContext';
+import useSaveToggle from '../hooks/useSaveToggle';
 import { Item, ItemRarity } from '../types';
-import { cannotSaveTypes, rarityColors, shouldUseSlimDisplay } from '../utils';
+import { rarityColors, shouldUseSlimDisplay } from '../utils';
 
 interface IProps {
   item: Item;
 }
 
 export default function ListItem({ item }: IProps) {
-  const { savedItems, setSavedItems } = useAppContext();
+  const { savedItems } = useAppContext();
   const color = useMemo(
     () => rarityColors[item.rarity ?? ItemRarity.Normal],
     [item]
@@ -31,22 +30,7 @@ export default function ListItem({ item }: IProps) {
     () => savedItems?.includes(item.id),
     [savedItems, item]
   );
-  const handleSaveToggle = useCallback(() => {
-    if (saved) {
-      setSavedItems((prev) => {
-        const result = [...prev];
-
-        result.splice(
-          result.findIndex((itemId) => item.id === itemId),
-          1
-        );
-
-        return result;
-      });
-    } else {
-      setSavedItems((prev) => [...prev, item.id]);
-    }
-  }, [item, saved, setSavedItems]);
+  const handleSaveToggle = useSaveToggle(item, saved);
 
   return (
     <Col className="mb-2" xs={12}>
@@ -61,16 +45,11 @@ export default function ListItem({ item }: IProps) {
                 placement="right"
               >
                 <Col className="text-center" sm={2} xs={12}>
-                  {!cannotSaveTypes.includes(item.frameTypeId) && (
-                    <p className="text-end">
-                      <Button
-                        onClick={handleSaveToggle}
-                        variant={saved ? 'danger' : 'success'}
-                      >
-                        <FontAwesomeIcon icon={saved ? faRemove : faSave} />
-                      </Button>
-                    </p>
-                  )}
+                  <SaveButton
+                    item={item}
+                    onSaveToggle={handleSaveToggle}
+                    saved={saved}
+                  />
                   <p>
                     <img src={item.icon} />
                   </p>
