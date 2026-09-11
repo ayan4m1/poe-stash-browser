@@ -1,4 +1,5 @@
 import Bottleneck from 'bottleneck';
+import { setTimeout as delay } from 'node:timers/promises';
 
 import {
   Item,
@@ -122,9 +123,6 @@ const request = async (
 
   return response.json();
 };
-
-const delay = (ms: number) =>
-  new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 /**
  * Runs a job on whichever limiter is current, and hands it that limiter so a
