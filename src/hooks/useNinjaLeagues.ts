@@ -1,7 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { NinjaLeague, NinjaOverviewOptions } from '../types';
-import { fetchNinjaLeagues, ninjaGcTime, ninjaStaleTime } from '../utils';
+import {
+  fetchNinjaLeagues,
+  ninjaGcTime,
+  ninjaRetryDelay,
+  ninjaStaleTime
+} from '../utils';
 
 /**
  * The leagues poe.ninja actually tracks. Worth its own request: the selected
@@ -20,6 +25,11 @@ export default function useNinjaLeagues({
     enabled,
     staleTime: ninjaStaleTime,
     gcTime: ninjaGcTime,
+    // Matched to the overviews this gates: react-query's own backoff would
+    // ignore the Retry-After the proxy sent, and a leagues request that gives
+    // up takes every price on the page down with it.
+    retry: 3,
+    retryDelay: ninjaRetryDelay,
     refetchOnWindowFocus: false,
     queryFn: ({ signal }) => fetchNinjaLeagues(signal)
   });
