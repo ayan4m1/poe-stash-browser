@@ -20,9 +20,7 @@ import {
 } from './itemClass';
 
 /**
- * Categories whose base type naming could not be confirmed against live
- * poe.ninja data. Left unmatched rather than guessed, since a wrong pattern
- * would silently price items against the wrong overview.
+ * Never match categories we do not know how to match.
  */
 const unconfirmed: ItemMatcher = () => false;
 
@@ -44,6 +42,9 @@ const currencyStartingWith =
   (item) =>
     isCurrencyFrame(item) && item.baseType.startsWith(fragment);
 
+/**
+ * Matcher functions for the various {@link NinjaItemType} values.
+ */
 export const ninjaItemTypeMatchers: Record<NinjaItemType, ItemMatcher> = {
   [NinjaItemType.Wombgift]: (item) => item.baseType.endsWith('Wombgift'),
   [NinjaItemType.Corpse]: (item) =>
@@ -84,7 +85,7 @@ export const ninjaItemTypeMatchers: Record<NinjaItemType, ItemMatcher> = {
 /**
  * Resolution order for {@link getNinjaItemType}, most specific first. Several
  * categories are subsets of others - a unique map is also a map, a Forbidden
- * Flame is also a unique jewel - so this order is load-bearing.
+ * Flame is also a unique jewel.
  */
 export const ninjaItemTypeOrder: NinjaItemType[] = [
   // Frame- and flag-based categories are unambiguous, so they go first.
@@ -273,8 +274,7 @@ export const getNinjaCurrencyType = (
 
 /**
  * The overview that prices an item, or undefined when poe.ninja has no category
- * for it. Families are tried item -> currency -> exchange, and both steps of
- * that order are load-bearing:
+ * for it. Families are tried item -> currency -> exchange.
  *
  * Item goes first because incubators, vials, invitations and scrying orbs all
  * carry the currency frame and none of them appear in the specific exchange
@@ -283,9 +283,10 @@ export const getNinjaCurrencyType = (
  * Currency beats exchange because the two families share the very same
  * `isNinjaCurrency` and `isFragment` predicates - a Chaos Orb matches both. The
  * currency overview publishes `chaosEquivalent` against the plain item name,
- * where the exchange overview needs an items-to-lines join. The Currency and
- * Fragment members of {@link NinjaExchangeType} are therefore unreachable from
- * here by design; they stay exported for classification.
+ * where the exchange overview needs an items-to-lines join.
+ *
+ * The Currency and Fragment members of {@link NinjaExchangeType} are therefore
+ * unreachable from here by design; they stay exported for classification.
  */
 export const resolveNinjaSource = (item: Item): NinjaSource | undefined => {
   const itemType = getNinjaItemType(item);
