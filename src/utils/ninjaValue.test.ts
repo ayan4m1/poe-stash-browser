@@ -16,30 +16,13 @@ import {
 import {
   buildNinjaIndex,
   getExchangeDivineRate,
+  getItemLookupKeys,
   toItemValue,
   valueFromIndex
 } from './ninjaValue';
+import { makeItem } from './testItems';
 
 const league = 'Allflame';
-
-const makeItem = (overrides: Partial<Item> = {}): Item => ({
-  verified: true,
-  w: 1,
-  h: 1,
-  icon: '',
-  id: 'test',
-  influences: {},
-  socketedItems: [],
-  name: '',
-  typeLine: '',
-  baseType: '',
-  identified: true,
-  ilvl: 84,
-  rewards: [],
-  frameTypeId: ItemFrameType.Normal,
-  artFilename: '',
-  ...overrides
-});
 
 const unique = (overrides: Partial<Item> = {}): Item =>
   makeItem({
@@ -189,6 +172,64 @@ describe('item overview index', () => {
     );
   });
 
+  // Both rows are equally listed, so the sample count is the only thing left
+  // to break the tie with.
+  it('falls back to sample count when listing counts match', () => {
+    const index = buildNinjaIndex(
+      itemSource(NinjaItemType.UniqueAccessory),
+      league,
+      {
+        lines: [
+          {
+            name: 'Impresence',
+            baseType: 'Onyx Amulet',
+            chaosValue: 40,
+            listingCount: 8,
+            count: 2
+          },
+          {
+            name: 'Impresence',
+            baseType: 'Onyx Amulet',
+            chaosValue: 90,
+            listingCount: 8,
+            count: 11
+          }
+        ]
+      }
+    );
+
+    assert.equal(
+      valueFromIndex(
+        unique({ name: 'Impresence', baseType: 'Onyx Amulet' }),
+        index
+      )?.chaosValue,
+      90
+    );
+  });
+
+  // Neither field is published, so both sides read as zero and the first line
+  // to claim the key keeps it.
+  it('keeps the first claim when neither line reports liquidity', () => {
+    const index = buildNinjaIndex(
+      itemSource(NinjaItemType.UniqueAccessory),
+      league,
+      {
+        lines: [
+          { name: 'Impresence', baseType: 'Onyx Amulet', chaosValue: 40 },
+          { name: 'Impresence', baseType: 'Onyx Amulet', chaosValue: 90 }
+        ]
+      }
+    );
+
+    assert.equal(
+      valueFromIndex(
+        unique({ name: 'Impresence', baseType: 'Onyx Amulet' }),
+        index
+      )?.chaosValue,
+      40
+    );
+  });
+
   // A unique's level requirement in the stash is always the one poe.ninja
   // publishes, so gating on it could only ever cost a match.
   it('ignores levelRequired on a unique line', () => {
@@ -273,6 +314,46 @@ describe('skill gem index', () => {
     const index = buildNinjaIndex(source, league, gems);
 
     assert.equal(valueFromIndex(gem(), index)?.chaosValue, 12);
+  });
+
+  // An unqualitied gem reads as quality zero on both sides, so a line that
+  // omits gemQuality still has to meet it.
+  it('matches a zero quality gem against a line with no gemQuality', () => {
+    const index = buildNinjaIndex(source, league, {
+      lines: [{ name: 'Portal', gemLevel: 20, chaosValue: 3 }]
+    });
+
+    assert.equal(
+      valueFromIndex(
+        makeItem({
+          baseType: 'Portal',
+          frameTypeId: ItemFrameType.Gem,
+          properties: [property('Level', '20')]
+        }),
+        index
+      )?.chaosValue,
+      3
+    );
+  });
+
+  // A line with no gemLevel cannot be priced against - every item key carries a
+  // level - so it must not answer for a levelled gem either.
+  it('never matches a line published without a gemLevel', () => {
+    const index = buildNinjaIndex(source, league, {
+      lines: [{ name: 'Portal', gemQuality: 20, chaosValue: 3 }]
+    });
+
+    assert.equal(
+      valueFromIndex(
+        makeItem({
+          baseType: 'Portal',
+          frameTypeId: ItemFrameType.Gem,
+          properties: [property('Level', '20'), property('Quality', '+20%')]
+        }),
+        index
+      ),
+      undefined
+    );
   });
 
   it('does not fall back to a nearby level or quality', () => {
@@ -652,5 +733,150 @@ describe('toItemValue', () => {
     assert.equal(value.currency, 'divine');
     assert.equal(value.unitChaosValue, 1);
     assert.equal(value.chaosValue, 400);
+  });
+});
+
+describe('getItemLookupKeys', () => {
+  // Currency and exchange are keyed on base type alone, so an item without one
+  // has nothing to look up rather than a key that matches everything.
+  it('yields no keys for a currency item with no base type', () => {
+    assert.deepEqual(getItemLookupKeys(makeItem(), currencySource), []);
+    assert.deepEqual(
+      getItemLookupKeys(makeItem(), exchangeSource(NinjaExchangeType.Scarab)),
+      []
+    );
+  });
+
+  // poe.ninja publishes only a handful of level and quality combinations, so a
+  // gem whose level we cannot read is left unpriced rather than matched loosely.
+  it('yields no keys for a gem with no level property', () => {
+    assert.deepEqual(
+      getItemLookupKeys(
+        makeItem({
+          baseType: 'Anger',
+          frameTypeId: ItemFrameType.Gem,
+          properties: [property('Quality', '+20%')]
+        }),
+        itemSource(NinjaItemType.SkillGem)
+      ),
+      []
+    );
+  });
+
+  it('yields no keys for an item with neither a name nor a base type', () => {
+    assert.deepEqual(
+      getItemLookupKeys(makeItem(), itemSource(NinjaItemType.UniqueWeapon)),
+      []
+    );
+  });
+});
+
+// The proxy passes poe.ninja's payloads through untouched, so a partial or
+// reshaped response has to drop rows rather than index undefined prices.
+describe('malformed overview payloads', () => {
+  it('skips item lines with no name or chaos value', () => {
+    const index = buildNinjaIndex(
+      itemSource(NinjaItemType.UniqueWeapon),
+      league,
+      {
+        lines: [
+          { baseType: 'Infernal Sword', chaosValue: 12 },
+          { name: 'Starforge', baseType: 'Infernal Sword', chaosValue: '12' },
+          null,
+          { name: 'Voltaxic Rift', baseType: 'Spine Bow', chaosValue: 44 }
+        ]
+      }
+    );
+
+    assert.deepEqual(Object.keys(index.entries).length > 0, true);
+    assert.equal(
+      valueFromIndex(
+        unique({ name: 'Starforge', baseType: 'Infernal Sword' }),
+        index
+      ),
+      undefined
+    );
+    assert.equal(
+      valueFromIndex(
+        unique({ name: 'Voltaxic Rift', baseType: 'Spine Bow' }),
+        index
+      )?.chaosValue,
+      44
+    );
+  });
+
+  it('indexes nothing from an item payload with no lines', () => {
+    const index = buildNinjaIndex(
+      itemSource(NinjaItemType.UniqueWeapon),
+      league,
+      {}
+    );
+
+    assert.deepEqual(index.entries, {});
+  });
+
+  it('skips currency lines with no name or chaos equivalent', () => {
+    const index = buildNinjaIndex(currencySource, league, {
+      lines: [
+        { chaosEquivalent: 5 },
+        { currencyTypeName: 'Divine Orb', chaosEquivalent: '335.9' },
+        null,
+        { currencyTypeName: 'Orb of Fusing', chaosEquivalent: 0.5 }
+      ]
+    });
+
+    assert.equal(valueFromIndex(currency('Divine Orb'), index), undefined);
+    assert.equal(
+      valueFromIndex(currency('Orb of Fusing'), index)?.chaosValue,
+      0.5
+    );
+  });
+
+  // Chaos is still seeded at one even when there is nothing else to index.
+  it('seeds only the Chaos Orb from a currency payload with no lines', () => {
+    const index = buildNinjaIndex(currencySource, league, {});
+
+    assert.deepEqual(index.entries, { 'Chaos Orb': { chaosValue: 1 } });
+  });
+
+  it('seeds only the Chaos Orb from an exchange payload with no lines', () => {
+    const index = buildNinjaIndex(
+      exchangeSource(NinjaExchangeType.Scarab),
+      league,
+      { core: { primary: 'chaos' } }
+    );
+
+    assert.deepEqual(index.entries, { 'Chaos Orb': { chaosValue: 1 } });
+  });
+
+  // Lines are joined to items by id, so an entry without one cannot be priced.
+  it('skips exchange items with no id and lines with no primary value', () => {
+    const index = buildNinjaIndex(
+      exchangeSource(NinjaExchangeType.Scarab),
+      league,
+      {
+        core: { primary: 'chaos' },
+        lines: [
+          { id: 'winged-sulphite-scarab', primaryValue: 2.4 },
+          { primaryValue: 9 },
+          { id: 'rusted-sulphite-scarab', primaryValue: '9' }
+        ],
+        items: [
+          { id: 'winged-sulphite-scarab', name: 'Winged Sulphite Scarab' },
+          { name: 'Idless Scarab' },
+          { id: 'rusted-sulphite-scarab', name: 'Rusted Sulphite Scarab' }
+        ]
+      }
+    );
+
+    assert.equal(
+      valueFromIndex(currency('Winged Sulphite Scarab'), index)?.chaosValue,
+      2.4
+    );
+    assert.equal(valueFromIndex(currency('Idless Scarab'), index), undefined);
+    assert.equal(
+      valueFromIndex(currency('Rusted Sulphite Scarab'), index),
+      undefined
+    );
   });
 });

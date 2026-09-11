@@ -22,25 +22,7 @@ import {
   isUnique,
   isWeapon
 } from './itemClass';
-
-const makeItem = (overrides: Partial<Item> = {}): Item => ({
-  verified: true,
-  w: 1,
-  h: 1,
-  icon: '',
-  id: 'test',
-  influences: {},
-  socketedItems: [],
-  name: '',
-  typeLine: '',
-  baseType: '',
-  identified: true,
-  ilvl: 84,
-  rewards: [],
-  frameTypeId: ItemFrameType.Normal,
-  artFilename: '',
-  ...overrides
-});
+import { makeItem } from './testItems';
 
 // The API carries the class as a valueless first property.
 const classProperty = (name: string): ItemProperty => ({

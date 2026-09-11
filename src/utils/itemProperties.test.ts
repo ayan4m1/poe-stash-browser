@@ -1,13 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import {
-  Item,
-  ItemFrameType,
-  ItemProperty,
-  ItemSocket,
-  SocketColor
-} from '../types';
+import { ItemProperty, ItemSocket, SocketColor } from '../types';
 import {
   getDisplayName,
   getGemLevel,
@@ -17,25 +11,7 @@ import {
   getMapTier,
   getMaxLinkCount
 } from './itemProperties';
-
-const makeItem = (overrides: Partial<Item> = {}): Item => ({
-  verified: true,
-  w: 1,
-  h: 1,
-  icon: '',
-  id: 'test',
-  influences: {},
-  socketedItems: [],
-  name: '',
-  typeLine: '',
-  baseType: '',
-  identified: true,
-  ilvl: 84,
-  rewards: [],
-  frameTypeId: ItemFrameType.Normal,
-  artFilename: '',
-  ...overrides
-});
+import { makeItem } from './testItems';
 
 const property = (name: string, value: string): ItemProperty => ({
   name,

@@ -4,16 +4,10 @@ import { Item, ItemProperty } from '../types';
  * The stash API keeps everything poe.ninja matches on - gem level, quality,
  * map tier - inside the `properties` array rather than on the item itself,
  * so every lookup here is a scan by property name.
- */
-export const getItemProperty = (
-  item: Item,
-  name: string
-): ItemProperty | undefined =>
-  item.properties?.find((property) => property.name === name);
-
-/**
- * First value of a named entry as a number. `parseInt` handles all three
- * formats the API emits for these - "14", "+20%" and "21 (Max)".
+ *
+ * This returns the first value of a named entry as a number. `parseInt`
+ * handles all three formats the API emits for these - "14", "+20%" and
+ * "21 (Max)".
  */
 const propertyNumber = (
   properties: ItemProperty[] | undefined,
@@ -31,10 +25,8 @@ const propertyNumber = (
   return isNaN(parsed) ? undefined : parsed;
 };
 
-export const getPropertyNumber = (
-  item: Item,
-  name: string
-): number | undefined => propertyNumber(item.properties, name);
+const getPropertyNumber = (item: Item, name: string): number | undefined =>
+  propertyNumber(item.properties, name);
 
 export const getGemLevel = (item: Item): number | undefined =>
   getPropertyNumber(item, 'Level');
