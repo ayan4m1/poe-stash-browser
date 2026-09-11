@@ -39,6 +39,11 @@ const currencyContaining =
   (item) =>
     isCurrencyFrame(item) && item.baseType.includes(fragment);
 
+const currencyStartingWith =
+  (fragment: string): ItemMatcher =>
+  (item) =>
+    isCurrencyFrame(item) && item.baseType.startsWith(fragment);
+
 export const ninjaItemTypeMatchers: Record<NinjaItemType, ItemMatcher> = {
   [NinjaItemType.Wombgift]: (item) => item.baseType.endsWith('Wombgift'),
   [NinjaItemType.Corpse]: (item) =>
@@ -153,8 +158,7 @@ const isEssence: ItemMatcher = (item) =>
 const isRunegraft = currencyContaining('Runegraft');
 const isAllflameEmber = currencyContaining('Allflame Ember');
 const isTattoo = currencyContaining('Tattoo');
-const isOmen: ItemMatcher = (item) =>
-  isCurrencyFrame(item) && item.baseType.startsWith('Omen of ');
+const isOmen = currencyStartingWith('Omen of');
 const isDucat = currencyEndingIn('Ducat');
 const isEnshroudingCrystal = currencyEndingIn('Enshrouding Crystal');
 const isArtifact = currencyEndingIn('Artifact');
