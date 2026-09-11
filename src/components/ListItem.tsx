@@ -9,8 +9,10 @@ import {
 } from 'react-bootstrap';
 
 import ModList from './ModList';
+import PriceButton from './PriceButton';
 import SaveButton from './SaveButton';
 import useAppContext from '../hooks/useAppContext';
+import useItemValue from '../hooks/useItemValue';
 import useSaveToggle from '../hooks/useSaveToggle';
 import { Item, ItemRarity } from '../types';
 import { rarityColors, shouldUseSlimDisplay } from '../utils';
@@ -31,6 +33,13 @@ export default function ListItem({ item }: IProps) {
     [savedItems, item]
   );
   const handleSaveToggle = useSaveToggle(item, saved);
+  const {
+    fetch: fetchValue,
+    isError,
+    isPending,
+    reason,
+    value
+  } = useItemValue(item);
 
   return (
     <Col className="mb-2" xs={12}>
@@ -57,6 +66,13 @@ export default function ListItem({ item }: IProps) {
                     {item.name} {item.typeLine}{' '}
                     {item.stackSize ? `(${item.stackSize})` : null}
                   </h5>
+                  <PriceButton
+                    isError={isError}
+                    isPending={isPending}
+                    onPriceClick={fetchValue}
+                    reason={reason}
+                    value={value}
+                  />
                 </Col>
               </OverlayTrigger>
               {!slimDisplay && (

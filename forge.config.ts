@@ -50,8 +50,10 @@ const config: ForgeConfig = {
   plugins: [
     new WebpackPlugin({
       mainConfig,
+      // Keep in sync with the CSP meta tag in src/index.html, which is what
+      // governs the packaged app - this one only applies in development.
       devContentSecurityPolicy:
-        "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: https://www.pathofexile.com https://api.pathofexile.com https://web.poecdn.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:;font-src 'self' 'unsafe-inline' https://fonts.gstatic.com;style-src 'self' 'unsafe-inline' https:;style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "default-src 'self' 'unsafe-eval' 'unsafe-inline' data: https://www.pathofexile.com https://api.pathofexile.com https://web.poecdn.com https://poe-ninja.bulletlogic.com; script-src 'self' 'unsafe-eval' 'unsafe-inline' data:;font-src 'self' 'unsafe-inline' https://fonts.gstatic.com;style-src 'self' 'unsafe-inline' https:;style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com",
       renderer: {
         config: rendererConfig,
         entryPoints: [

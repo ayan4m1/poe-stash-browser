@@ -4,13 +4,13 @@ import {
   ItemMatcher,
   NinjaCurrencyType,
   NinjaExchangeType,
-  NinjaItemType
+  NinjaItemType,
+  NinjaSource
 } from '../types';
 import {
   forbiddenJewelBaseTypes,
   isAccessory,
   isArmour,
-  isEquipment,
   isFlask,
   isJewel,
   isMap,
@@ -71,8 +71,6 @@ export const ninjaItemTypeMatchers: Record<NinjaItemType, ItemMatcher> = {
   [NinjaItemType.IncursionTemple]: (item) =>
     item.baseType === 'Chronicle of Atzoatl',
   [NinjaItemType.ScryingOrb]: unconfirmed,
-  // Not gated on influence - poe.ninja prices plain bases by item level too.
-  [NinjaItemType.BaseType]: (item) => !isUnique(item) && isEquipment(item),
   [NinjaItemType.Flask]: (item) => !isUnique(item) && isFlask(item),
   [NinjaItemType.Beast]: unconfirmed,
   [NinjaItemType.Vial]: (item) => item.baseType.startsWith('Vial of ')
@@ -115,9 +113,8 @@ export const ninjaItemTypeOrder: NinjaItemType[] = [
   NinjaItemType.UniqueArmour,
   NinjaItemType.UniqueAccessory,
   NinjaItemType.UniqueFlask,
-  // Non-unique catch-alls.
-  NinjaItemType.Flask,
-  NinjaItemType.BaseType
+  // Non-unique catch-all.
+  NinjaItemType.Flask
 ];
 
 // Maintained by hand - poe.ninja moves items between Fragment and Currency as
@@ -258,3 +255,52 @@ export const getNinjaExchangeType = (
   item: Item
 ): NinjaExchangeType | undefined =>
   resolveNinjaType(ninjaExchangeTypeOrder, ninjaExchangeTypeMatchers, item);
+
+/** Resolution order for {@link getNinjaCurrencyType}; Currency is the catch-all. */
+export const ninjaCurrencyTypeOrder: NinjaCurrencyType[] = [
+  NinjaCurrencyType.Fragment,
+  NinjaCurrencyType.Currency
+];
+
+export const getNinjaCurrencyType = (
+  item: Item
+): NinjaCurrencyType | undefined =>
+  resolveNinjaType(ninjaCurrencyTypeOrder, ninjaCurrencyTypeMatchers, item);
+
+/**
+ * The overview that prices an item, or undefined when poe.ninja has no category
+ * for it. Families are tried item -> currency -> exchange, and both steps of
+ * that order are load-bearing:
+ *
+ * Item goes first because incubators, vials, invitations and scrying orbs all
+ * carry the currency frame and none of them appear in the specific exchange
+ * matchers, so `isNinjaCurrency` would otherwise swallow them.
+ *
+ * Currency beats exchange because the two families share the very same
+ * `isNinjaCurrency` and `isFragment` predicates - a Chaos Orb matches both. The
+ * currency overview publishes `chaosEquivalent` against the plain item name,
+ * where the exchange overview needs an items-to-lines join. The Currency and
+ * Fragment members of {@link NinjaExchangeType} are therefore unreachable from
+ * here by design; they stay exported for classification.
+ */
+export const resolveNinjaSource = (item: Item): NinjaSource | undefined => {
+  const itemType = getNinjaItemType(item);
+
+  if (itemType) {
+    return { endpoint: 'item', type: itemType };
+  }
+
+  const currencyType = getNinjaCurrencyType(item);
+
+  if (currencyType) {
+    return { endpoint: 'currency', type: currencyType };
+  }
+
+  const exchangeType = getNinjaExchangeType(item);
+
+  if (exchangeType) {
+    return { endpoint: 'exchange', type: exchangeType };
+  }
+
+  return undefined;
+};

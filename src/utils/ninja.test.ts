@@ -7,11 +7,17 @@ import {
   ItemProperty,
   ItemRarity,
   ItemType,
+  NinjaCurrencyType,
   NinjaExchangeType,
   NinjaItemType
 } from '../types';
 import { getItemClass } from './itemClass';
-import { getNinjaExchangeType, getNinjaItemType } from './ninja';
+import {
+  getNinjaCurrencyType,
+  getNinjaExchangeType,
+  getNinjaItemType,
+  resolveNinjaSource
+} from './ninja';
 
 const makeItem = (overrides: Partial<Item> = {}): Item => ({
   verified: true,
@@ -240,7 +246,9 @@ describe('getNinjaItemType', () => {
     );
   });
 
-  it('classifies non-unique equipment as BaseType regardless of influence', () => {
+  // poe.ninja's BaseType overview is not modelled - its lines carry no base
+  // type, variant or influence, so a stash rare has nothing to match on.
+  it('leaves non-unique equipment unclassified', () => {
     const item = makeItem({
       rarity: ItemRarity.Rare,
       frameTypeId: ItemFrameType.Rare,
@@ -248,7 +256,7 @@ describe('getNinjaItemType', () => {
       properties: [classProperty('Body Armour')]
     });
 
-    assert.equal(getNinjaItemType(item), NinjaItemType.BaseType);
+    assert.equal(getNinjaItemType(item), undefined);
   });
 
   it('matches flag- and frame-driven categories', () => {
@@ -371,5 +379,112 @@ describe('getNinjaExchangeType', () => {
       getNinjaExchangeType(unique({ baseType: 'Gold Ring' })),
       undefined
     );
+  });
+});
+
+describe('getNinjaCurrencyType', () => {
+  it('falls back to Currency for plain currency', () => {
+    assert.equal(
+      getNinjaCurrencyType(currency('Chaos Orb')),
+      NinjaCurrencyType.Currency
+    );
+    assert.equal(
+      getNinjaCurrencyType(currency('Sacred Orb')),
+      NinjaCurrencyType.Currency
+    );
+  });
+
+  it('classifies fragments', () => {
+    assert.equal(
+      getNinjaCurrencyType(currency('Mortal Hope')),
+      NinjaCurrencyType.Fragment
+    );
+    assert.equal(
+      getNinjaCurrencyType(currency('Divine Vessel')),
+      NinjaCurrencyType.Fragment
+    );
+  });
+
+  // Everything the currency overview excludes is priced by the exchange one.
+  it('returns undefined for the specific exchange categories', () => {
+    assert.equal(
+      getNinjaCurrencyType(currency('Deafening Essence of Hatred')),
+      undefined
+    );
+    assert.equal(
+      getNinjaCurrencyType(currency('Winged Sulphite Scarab')),
+      undefined
+    );
+  });
+});
+
+describe('resolveNinjaSource', () => {
+  // These carry a currency frame and are in none of the specific exchange
+  // categories, so isNinjaCurrency would swallow them if item did not go first.
+  it('prefers the item overview for currency-framed item categories', () => {
+    assert.deepEqual(resolveNinjaSource(currency('Fine Incubator')), {
+      endpoint: 'item',
+      type: NinjaItemType.Incubator
+    });
+    assert.deepEqual(resolveNinjaSource(currency("Maven's Invitation")), {
+      endpoint: 'item',
+      type: NinjaItemType.Invitation
+    });
+    assert.deepEqual(resolveNinjaSource(currency('Vial of Dominance')), {
+      endpoint: 'item',
+      type: NinjaItemType.Vial
+    });
+  });
+
+  // Currency and Fragment match both families; the currency overview wins.
+  it('prefers the currency overview over the exchange overview', () => {
+    assert.deepEqual(resolveNinjaSource(currency('Chaos Orb')), {
+      endpoint: 'currency',
+      type: NinjaCurrencyType.Currency
+    });
+    assert.deepEqual(resolveNinjaSource(currency('Mortal Hope')), {
+      endpoint: 'currency',
+      type: NinjaCurrencyType.Fragment
+    });
+  });
+
+  it('falls through to the exchange overview', () => {
+    assert.deepEqual(resolveNinjaSource(currency('Winged Sulphite Scarab')), {
+      endpoint: 'exchange',
+      type: NinjaExchangeType.Scarab
+    });
+    assert.deepEqual(
+      resolveNinjaSource(
+        makeItem({
+          baseType: 'The Doctor',
+          frameTypeId: ItemFrameType.DivinationCard
+        })
+      ),
+      { endpoint: 'exchange', type: NinjaExchangeType.DivinationCard }
+    );
+  });
+
+  it('resolves uniques by class', () => {
+    assert.deepEqual(
+      resolveNinjaSource(
+        unique({
+          name: 'Kingmaker',
+          baseType: 'Despot Axe',
+          properties: [classProperty('Two Handed Axe')]
+        })
+      ),
+      { endpoint: 'item', type: NinjaItemType.UniqueWeapon }
+    );
+  });
+
+  it('returns undefined for items poe.ninja does not price for us', () => {
+    const rare = makeItem({
+      rarity: ItemRarity.Rare,
+      frameTypeId: ItemFrameType.Rare,
+      baseType: 'Vaal Regalia',
+      properties: [classProperty('Body Armour')]
+    });
+
+    assert.equal(resolveNinjaSource(rare), undefined);
   });
 });

@@ -2,11 +2,13 @@ import { useMemo } from 'react';
 import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 
 import ModList from './ModList';
+import PriceButton from './PriceButton';
+import SaveButton from './SaveButton';
+import useItemValue from '../hooks/useItemValue';
 import useAppContext from '../hooks/useAppContext';
 import { Item, ItemRarity } from '../types';
 import { rarityColors, shouldUseSlimDisplay } from '../utils';
 import useSaveToggle from '../hooks/useSaveToggle';
-import SaveButton from './SaveButton';
 
 interface IProps {
   item: Item;
@@ -24,6 +26,13 @@ export default function GridItem({ item }: IProps) {
     [savedItems, item]
   );
   const handleSaveToggle = useSaveToggle(item, saved);
+  const {
+    fetch: fetchValue,
+    isError,
+    isPending,
+    reason,
+    value
+  } = useItemValue(item);
 
   return (
     <Col className="mb-2 d-flex" md={3} sm={4} xs={12}>
@@ -56,6 +65,13 @@ export default function GridItem({ item }: IProps) {
                 {item.name} {item.typeLine}{' '}
                 {item.stackSize ? `(${item.stackSize})` : null}
               </p>
+              <PriceButton
+                isError={isError}
+                isPending={isPending}
+                onPriceClick={fetchValue}
+                reason={reason}
+                value={value}
+              />
             </Card.Title>
           </Card.Header>
         </OverlayTrigger>

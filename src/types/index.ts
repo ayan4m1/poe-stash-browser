@@ -279,7 +279,13 @@ export type StashResponse = {
 /** Predicate deciding whether an item belongs to some category. */
 export type ItemMatcher = (item: Item) => boolean;
 
-/** `type` values for the poe.ninja PoE 1 stash item overview endpoint. */
+/**
+ * `type` values for the poe.ninja PoE 1 stash item overview endpoint that this
+ * app can price. poe.ninja also publishes `BaseType`, deliberately omitted -
+ * its lines carry no base type, variant or influence, so a stash rare has
+ * nothing to match on, and its matcher would catch every non-unique weapon,
+ * armour and accessory.
+ */
 export enum NinjaItemType {
   Wombgift = 'Wombgift',
   Corpse = 'Corpse',
@@ -305,7 +311,6 @@ export enum NinjaItemType {
   Memory = 'Memory',
   IncursionTemple = 'IncursionTemple',
   ScryingOrb = 'ScryingOrb',
-  BaseType = 'BaseType',
   Flask = 'Flask',
   Beast = 'Beast',
   Vial = 'Vial'
@@ -338,6 +343,142 @@ export enum NinjaCurrencyType {
   Currency = 'Currency',
   Fragment = 'Fragment'
 }
+
+/** Which poe.ninja overview family prices an item. */
+export type NinjaEndpoint = 'item' | 'currency' | 'exchange';
+
+/** A resolved (endpoint, type) pair - exactly one overview request. */
+export type NinjaSource =
+  | { endpoint: 'item'; type: NinjaItemType }
+  | { endpoint: 'currency'; type: NinjaCurrencyType }
+  | { endpoint: 'exchange'; type: NinjaExchangeType };
+
+export type NinjaLeague = {
+  id: string;
+  name: string;
+};
+
+export type NinjaValueCurrency = 'chaos' | 'divine';
+
+/**
+ * `value` and `currency` are for display only - they mix two denominations.
+ * Sort and sum on `chaosValue`, which is the stack total in chaos.
+ */
+export type ItemValue = {
+  value: number;
+  currency: NinjaValueCurrency;
+  chaosValue: number;
+  unitChaosValue: number;
+  stackSize: number;
+};
+
+/**
+ * One line of a stash item overview. Everything optional here is genuinely
+ * absent from live payloads rather than merely nullable - `baseType` is missing
+ * from almost every skill gem line, `links` from unlinked items, and
+ * `corrupted` whenever it is false.
+ */
+export type NinjaItemLine = {
+  id?: number;
+  name: string;
+  baseType?: string;
+  links?: number;
+  variant?: string;
+  itemClass?: number;
+  itemType?: string;
+  /**
+   * Two different measurements share this field. The non-unique flask overview
+   * publishes one row per item level of the base - Iron Flask appears at 82,
+   * 83, 84 and 85 - while gem and unique rows carry the character level the
+   * item requires. Omitted rather than zeroed when there is nothing to publish.
+   */
+  levelRequired?: number;
+  corrupted?: boolean;
+  gemLevel?: number;
+  gemQuality?: number;
+  chaosValue: number;
+  divineValue?: number;
+  exaltedValue?: number;
+  count?: number;
+  listingCount?: number;
+  detailsId?: string;
+};
+
+export type NinjaItemOverviewResponse = {
+  lines: NinjaItemLine[];
+};
+
+export type NinjaCurrencyLine = {
+  currencyTypeName: string;
+  chaosEquivalent: number;
+  detailsId?: string;
+  pay?: object;
+  receive?: object;
+};
+
+export type NinjaCurrencyDetail = {
+  id?: number;
+  icon?: string;
+  name: string;
+  tradeId?: string;
+};
+
+export type NinjaCurrencyOverviewResponse = {
+  lines: NinjaCurrencyLine[];
+  currencyDetails?: NinjaCurrencyDetail[];
+};
+
+export type NinjaExchangeLine = {
+  id: string;
+  primaryValue?: number;
+  volumePrimaryValue?: number;
+};
+
+export type NinjaExchangeItem = {
+  id: string;
+  name: string;
+  image?: string;
+  category?: string;
+  detailsId?: string;
+};
+
+export type NinjaExchangeOverviewResponse = {
+  core: {
+    items?: { id: string; name: string }[];
+    /** `rates.divine` is the chaos to divine multiplier. */
+    rates?: Record<string, number>;
+    primary?: string;
+    secondary?: string;
+  };
+  lines: NinjaExchangeLine[];
+  /** Maps `lines[].id` to a display name; distinct from `core.items`. */
+  items: NinjaExchangeItem[];
+};
+
+export type NinjaPriceEntry = {
+  chaosValue: number;
+  count?: number;
+  listingCount?: number;
+};
+
+/**
+ * The compact projection of one overview. Raw payloads run to tens of thousands
+ * of lines, so only this shape is ever handed back to the caller or cached.
+ */
+export type NinjaOverviewIndex = {
+  league: string;
+  endpoint: NinjaEndpoint;
+  type: string;
+  entries: Record<string, NinjaPriceEntry>;
+};
+
+/**
+ * Caller-side gate on a ninja query. Pricing is deferred until a user asks for
+ * it, so every hook on that path has to be able to sit disabled.
+ */
+export type NinjaOverviewOptions = {
+  enabled?: boolean;
+};
 
 export type BooleanMode = 'and' | 'or' | 'not';
 

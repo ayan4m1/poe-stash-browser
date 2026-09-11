@@ -12,9 +12,13 @@ import {
   SocketColor
 } from '../types';
 import { getItemClass } from './itemClass';
+import { getMaxLinkCount } from './itemProperties';
 
 export * from './itemClass';
+export * from './itemProperties';
 export * from './ninja';
+export * from './ninjaApi';
+export * from './ninjaValue';
 export * from './sorting';
 
 export const itemFrameTypeNames: Record<ItemFrameType, string> = {
@@ -227,20 +231,6 @@ const getRequiredLevel = (item: Item): number | undefined => {
   return isNaN(level) ? undefined : level;
 };
 
-const getLinkCount = (item: Item) => {
-  let links = 0;
-
-  let groupIndex = 0;
-  for (const socket of item.sockets ?? []) {
-    if (socket.group === groupIndex) {
-      links++;
-    }
-    groupIndex = socket.group;
-  }
-
-  return links;
-};
-
 export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
   const compiled = compileQueries(filter.queries);
   const slug = buildItemText(item);
@@ -315,7 +305,7 @@ export const itemMatchesFilter = (item: Item, filter: FilterForm): boolean => {
     }
   }
   if (filter.minLinks) {
-    const links = getLinkCount(item);
+    const links = getMaxLinkCount(item);
     if (links < filter.minLinks) {
       result = false;
     }
