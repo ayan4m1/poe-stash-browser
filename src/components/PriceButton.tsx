@@ -31,8 +31,10 @@ export default function PriceButton({
     return null;
   }
 
-  if (value) {
+  if (value && value.unitChaosValue >= 1) {
     return <p className="text-end">{Math.round(value.unitChaosValue)} Chaos</p>;
+  } else if (value) {
+    return <p className="text-end">&lt;1 Chaos</p>;
   }
 
   // Both outcomes are answers, not invitations - the overview is fetched and
