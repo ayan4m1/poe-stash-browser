@@ -189,9 +189,11 @@ const claimKeys = (
     const key = keys[level];
     const current = claims[key];
 
-    if (!current || level < current.level) {
-      claims[key] = { entry, level };
-    } else if (level === current.level && isMoreLiquid(entry, current.entry)) {
+    if (
+      !current ||
+      level < current.level ||
+      (level === current.level && isMoreLiquid(entry, current.entry))
+    ) {
       claims[key] = { entry, level };
     }
   }
@@ -209,10 +211,14 @@ const toEntries = (
   return entries;
 };
 
-const toPriceEntry = (line: NinjaItemLine): NinjaPriceEntry => ({
-  chaosValue: line.chaosValue,
-  count: line.count,
-  listingCount: line.listingCount
+const toPriceEntry = ({
+  chaosValue,
+  count,
+  listingCount
+}: NinjaItemLine): NinjaPriceEntry => ({
+  chaosValue,
+  count,
+  listingCount
 });
 
 /** Key ladder for a line of the item overview, most specific first. */
@@ -272,15 +278,13 @@ export const getItemLookupKeys = (
   if (gemItemTypes.has(type)) {
     const name = item.name || item.baseType;
     const level = getGemLevel(item);
+    const quality = getGemQuality(item);
 
     // poe.ninja lists only a handful of level and quality combinations. An
     // inexact match would price a 19/12 gem off the 21/23 corrupted row, so a
     // gem outside those combinations is left unpriced on purpose.
     return name && level !== undefined
-      ? levelledKeys(
-          [name, level, getGemQuality(item), item.corrupted ? 1 : 0],
-          levels
-        )
+      ? levelledKeys([name, level, quality, item.corrupted ? 1 : 0], levels)
       : [];
   }
 
@@ -361,6 +365,7 @@ const buildCurrencyOverviewIndex = (
     entries[line.currencyTypeName] = { chaosValue: line.chaosEquivalent };
   }
 
+  // seed the Chaos Orb at 1 Chaos in value
   if (!entries[chaosOrbName]) {
     entries[chaosOrbName] = { chaosValue: 1 };
   }
@@ -397,6 +402,7 @@ const buildExchangeOverviewIndex = (
     }
   }
 
+  // seed the Chaos Orb at 1 Chaos in value
   if (!entries[chaosOrbName]) {
     entries[chaosOrbName] = { chaosValue: 1 };
   }
