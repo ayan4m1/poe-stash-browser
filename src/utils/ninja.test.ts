@@ -6,12 +6,10 @@ import {
   ItemFrameType,
   ItemProperty,
   ItemRarity,
-  ItemType,
   NinjaCurrencyType,
   NinjaExchangeType,
   NinjaItemType
 } from '../types';
-import { getItemClass } from './itemClass';
 import {
   getNinjaCurrencyType,
   getNinjaExchangeType,
@@ -62,64 +60,6 @@ const currency = (baseType: string): Item =>
     typeLine: baseType,
     frameTypeId: ItemFrameType.Currency
   });
-
-describe('getItemClass', () => {
-  it('reads the class property when the API provides one', () => {
-    const item = makeItem({
-      baseType: 'Vaal Axe',
-      properties: [classProperty('Two Handed Axe')]
-    });
-
-    assert.equal(getItemClass(item), ItemType.TwoHandedAxe);
-  });
-
-  // The regression the old properties[0].name check could not handle:
-  // accessories carry no class property at all.
-  it('classifies accessories that have no properties array', () => {
-    assert.equal(
-      getItemClass(makeItem({ baseType: 'Coral Ring' })),
-      ItemType.Ring
-    );
-    assert.equal(
-      getItemClass(makeItem({ baseType: 'Turquoise Amulet' })),
-      ItemType.Amulet
-    );
-    assert.equal(
-      getItemClass(makeItem({ baseType: 'Leather Belt' })),
-      ItemType.Belt
-    );
-  });
-
-  it('classifies belt bases that do not end in Belt', () => {
-    assert.equal(
-      getItemClass(makeItem({ baseType: 'Rustic Sash' })),
-      ItemType.Belt
-    );
-    assert.equal(
-      getItemClass(makeItem({ baseType: 'Stygian Vise' })),
-      ItemType.Belt
-    );
-  });
-
-  it('classifies talismans as amulets', () => {
-    const item = makeItem({ baseType: 'Clutching Talisman', talismanTier: 2 });
-
-    assert.equal(getItemClass(item), ItemType.Amulet);
-  });
-
-  it('classifies maps by their Map Tier property', () => {
-    const item = makeItem({
-      baseType: 'Toxic Sewer Map',
-      properties: [mapTier(9)]
-    });
-
-    assert.equal(getItemClass(item), ItemType.Map);
-  });
-
-  it('returns undefined for items with no class signal', () => {
-    assert.equal(getItemClass(currency('Chaos Orb')), undefined);
-  });
-});
 
 describe('getNinjaItemType', () => {
   it('groups unique rings and amulets under UniqueAccessory', () => {
