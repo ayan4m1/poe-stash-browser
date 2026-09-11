@@ -1,8 +1,16 @@
 import { useMemo } from 'react';
-import { Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
+import {
+  ButtonGroup,
+  Card,
+  Col,
+  OverlayTrigger,
+  Row,
+  Tooltip
+} from 'react-bootstrap';
 
 import ModList from './ModList';
 import PriceButton from './PriceButton';
+import PriceLabel from './PriceLabel';
 import SaveButton from './SaveButton';
 import useItemValue from '../hooks/useItemValue';
 import useAppContext from '../hooks/useAppContext';
@@ -50,11 +58,22 @@ export default function GridItem({ item }: IProps) {
         >
           <Card.Header style={{ backgroundColor: '#262323' }}>
             <Card.Title className="text-center" style={{ color }}>
-              <SaveButton
-                item={item}
-                onSaveToggle={handleSaveToggle}
-                saved={saved}
-              />
+              <div className="text-end mb-2">
+                <ButtonGroup>
+                  <PriceButton
+                    isError={isError}
+                    isPending={isPending}
+                    onPriceClick={fetchValue}
+                    reason={reason}
+                    value={value}
+                  />
+                  <SaveButton
+                    item={item}
+                    onSaveToggle={handleSaveToggle}
+                    saved={saved}
+                  />
+                </ButtonGroup>
+              </div>
               <p>
                 <img
                   src={item.icon}
@@ -65,13 +84,7 @@ export default function GridItem({ item }: IProps) {
                 {item.name} {item.typeLine}{' '}
                 {item.stackSize ? `(${item.stackSize})` : null}
               </p>
-              <PriceButton
-                isError={isError}
-                isPending={isPending}
-                onPriceClick={fetchValue}
-                reason={reason}
-                value={value}
-              />
+              <PriceLabel isError={isError} reason={reason} value={value} />
             </Card.Title>
           </Card.Header>
         </OverlayTrigger>

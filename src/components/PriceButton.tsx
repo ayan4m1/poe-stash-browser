@@ -14,9 +14,9 @@ interface IProps {
 }
 
 /**
- * Asks poe.ninja what one item is worth, then shows the answer in the button's
- * place. Rendered per item because each press is what spends a request - see
- * useItemValue, which holds the gate.
+ * Asks poe.ninja what one item is worth. Rendered per item because each press
+ * is what spends a request - see useItemValue, which holds the gate. The answer
+ * itself lands in PriceLabel, so this renders nothing once there is one.
  */
 export default function PriceButton({
   isError,
@@ -31,31 +31,24 @@ export default function PriceButton({
     return null;
   }
 
-  if (value && value.unitChaosValue >= 1) {
-    return <p className="text-end">{Math.round(value.unitChaosValue)} Chaos</p>;
-  } else if (value) {
-    return <p className="text-end">&lt;1 Chaos</p>;
+  // The question has been answered - PriceLabel is showing it.
+  if (value) {
+    return null;
   }
 
   // Both outcomes are answers, not invitations - the overview is fetched and
   // either has no line for this item or could not be had at all. A button here
   // would be one the user can press to no effect.
   if (isError || reason === 'unpriced') {
-    return (
-      <p className="text-end text-muted">
-        {isError ? 'No price data' : 'Unpriced'}
-      </p>
-    );
+    return null;
   }
 
   return (
-    <p className="text-end">
-      <Button disabled={isPending} onClick={onPriceClick}>
-        <FontAwesomeIcon
-          icon={isPending ? faSpinner : faCoins}
-          spin={isPending}
-        />
-      </Button>
-    </p>
+    <Button disabled={isPending} onClick={onPriceClick}>
+      <FontAwesomeIcon
+        icon={isPending ? faSpinner : faCoins}
+        spin={isPending}
+      />
+    </Button>
   );
 }

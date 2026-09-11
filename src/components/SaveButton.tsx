@@ -17,10 +17,8 @@ export default function SaveButton({ item, onSaveToggle, saved }: IProps) {
   }
 
   return (
-    <p className="text-end">
-      <Button onClick={onSaveToggle} variant={saved ? 'danger' : 'success'}>
-        <FontAwesomeIcon icon={saved ? faRemove : faSave} />
-      </Button>
-    </p>
+    <Button onClick={onSaveToggle} variant={saved ? 'danger' : 'success'}>
+      <FontAwesomeIcon icon={saved ? faRemove : faSave} />
+    </Button>
   );
 }

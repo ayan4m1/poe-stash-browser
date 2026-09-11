@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  ButtonGroup,
   Card,
   Col,
   Container,
@@ -10,6 +11,7 @@ import {
 
 import ModList from './ModList';
 import PriceButton from './PriceButton';
+import PriceLabel from './PriceLabel';
 import SaveButton from './SaveButton';
 import useAppContext from '../hooks/useAppContext';
 import useItemValue from '../hooks/useItemValue';
@@ -54,11 +56,22 @@ export default function ListItem({ item }: IProps) {
                 placement="right"
               >
                 <Col className="text-center" sm={2} xs={12}>
-                  <SaveButton
-                    item={item}
-                    onSaveToggle={handleSaveToggle}
-                    saved={saved}
-                  />
+                  <div className="text-end mb-2">
+                    <ButtonGroup>
+                      <PriceButton
+                        isError={isError}
+                        isPending={isPending}
+                        onPriceClick={fetchValue}
+                        reason={reason}
+                        value={value}
+                      />
+                      <SaveButton
+                        item={item}
+                        onSaveToggle={handleSaveToggle}
+                        saved={saved}
+                      />
+                    </ButtonGroup>
+                  </div>
                   <p>
                     <img src={item.icon} />
                   </p>
@@ -66,13 +79,7 @@ export default function ListItem({ item }: IProps) {
                     {item.name} {item.typeLine}{' '}
                     {item.stackSize ? `(${item.stackSize})` : null}
                   </h5>
-                  <PriceButton
-                    isError={isError}
-                    isPending={isPending}
-                    onPriceClick={fetchValue}
-                    reason={reason}
-                    value={value}
-                  />
+                  <PriceLabel isError={isError} reason={reason} value={value} />
                 </Col>
               </OverlayTrigger>
               {!slimDisplay && (
