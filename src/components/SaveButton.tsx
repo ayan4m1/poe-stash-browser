@@ -1,6 +1,6 @@
 import { Button } from 'react-bootstrap';
 import { faRemove, faSave } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome/dist';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { Item } from '../types';
 import { cannotSaveTypes } from '../utils';
