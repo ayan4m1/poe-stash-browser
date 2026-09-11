@@ -8,7 +8,7 @@ export default function useStashes(league?: string) {
   const { token } = useAuthContext();
 
   return useQuery<StashesResponse>({
-    queryKey: ['account', 'stashes', league],
+    queryKey: ['account', 'v1', 'stashes', league],
     enabled: () => Boolean(token && league),
     queryFn: () =>
       fetch(`${baseApiUrl}stash/${league}`, {

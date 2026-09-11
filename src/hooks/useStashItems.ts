@@ -79,7 +79,7 @@ export default function useStashItems(league?: string, stashes?: StashTab[]) {
   const queries = useQueries({
     queries:
       stashes?.map((stash) => ({
-        queryKey: ['account', league, 'stash', stash.id],
+        queryKey: ['account', 'v1', league, 'stash', stash.id],
         enabled: Boolean(initialized && limiter),
         queryFn: () =>
           limiter?.schedule(async () => {

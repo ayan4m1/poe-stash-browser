@@ -8,7 +8,7 @@ export default function useLeagues() {
   const { token } = useAuthContext();
 
   return useQuery<LeagueResponse>({
-    queryKey: ['account', 'leagues'],
+    queryKey: ['account', 'v1', 'leagues'],
     enabled: () => Boolean(token),
     queryFn: () =>
       fetch(`${baseApiUrl}account/leagues`, {
