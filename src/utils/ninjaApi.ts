@@ -56,6 +56,10 @@ export class NinjaRequestError extends Error {
  * The proxy serialises callers rather than publishing rate limit headers, so
  * there is nothing to sync from a response the way useRateLimiters does for the
  * GGG API - a fixed floor between requests is the whole budget.
+ *
+ * minTime here is only a lower bound and never the binding one: Bottleneck
+ * measures it launch-to-launch, so it buys nothing once a request outlasts the
+ * floor. What actually holds the gap open is the trailing wait in `schedule`.
  */
 export const createNinjaLimiter = (minTime: number) =>
   new Bottleneck({ maxConcurrent: 1, minTime });
@@ -63,6 +67,9 @@ export const createNinjaLimiter = (minTime: number) =>
 export const defaultNinjaMinTime = 1e3;
 
 let ninjaLimiter = createNinjaLimiter(defaultNinjaMinTime);
+// Bottleneck does not hand its settings back, and the trailing wait needs the
+// number, so the floor is tracked alongside the limiter it was built with.
+let ninjaMinTime = defaultNinjaMinTime;
 
 /**
  * Replaces the shared limiter, discarding any park left over from a 429. The
@@ -71,6 +78,7 @@ let ninjaLimiter = createNinjaLimiter(defaultNinjaMinTime);
  */
 export const configureNinjaLimiter = (minTime: number) => {
   ninjaLimiter = createNinjaLimiter(minTime);
+  ninjaMinTime = minTime;
 
   return ninjaLimiter;
 };
@@ -115,14 +123,32 @@ const request = async (
   return response.json();
 };
 
+const delay = (ms: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, ms));
+
 /**
  * Runs a job on whichever limiter is current, and hands it that limiter so a
  * 429 parks the same instance the job was queued on.
+ *
+ * The slot is held for the floor after the job settles rather than left to
+ * Bottleneck's minTime, which counts from when a job was launched: with
+ * maxConcurrent 1 the next request goes out at max(launch + minTime, done), so
+ * a request slower than the floor leaves no gap at all behind it. The first
+ * press of a price button hit exactly that - a cold /economy/leagues took over
+ * a second, and the overview its answer unblocked went out instantly and 429'd.
  */
 const schedule = <T>(job: (limiter: Bottleneck) => Promise<T>): Promise<T> => {
   const limiter = ninjaLimiter;
+  const floor = ninjaMinTime;
 
-  return limiter.schedule(() => job(limiter));
+  return limiter.schedule(async () => {
+    try {
+      return await job(limiter);
+    } finally {
+      // Also on failure and on abort - the proxy may well have counted those.
+      await delay(floor);
+    }
+  });
 };
 
 export const buildNinjaUrl = (source: NinjaSource, league: string) =>

@@ -127,6 +127,44 @@ describe('fetchNinjaOverview', () => {
   });
 });
 
+describe('ninja limiter', () => {
+  const source = {
+    endpoint: 'currency' as const,
+    type: NinjaCurrencyType.Currency
+  };
+  const floor = 200;
+  const requestTime = 250;
+
+  // The regression: Bottleneck's minTime counts from when a job was launched, so
+  // a request slower than the floor used to leave no gap at all behind it - which
+  // is how a cold /economy/leagues let the very next request go out instantly.
+  it('spaces requests from when the last one finished, not when it started', async (t) => {
+    configureNinjaLimiter(floor);
+
+    const starts: number[] = [];
+
+    mock.method(globalThis, 'fetch', async () => {
+      starts.push(Date.now());
+
+      await new Promise((resolve) => setTimeout(resolve, requestTime));
+
+      return jsonResponse({ lines: [], currencyDetails: [] });
+    });
+    t.after(() => mock.restoreAll());
+
+    await Promise.all([
+      fetchNinjaOverview(source, 'Allflame'),
+      fetchNinjaOverview(source, 'Allflame')
+    ]);
+
+    assert.equal(starts.length, 2);
+    assert.ok(
+      starts[1] - starts[0] >= requestTime + floor - 20,
+      `expected at least ${requestTime + floor}ms between requests, got ${starts[1] - starts[0]}ms`
+    );
+  });
+});
+
 describe('ninjaRetryDelay', () => {
   it('honours the delay the proxy asked for', () => {
     assert.equal(ninjaRetryDelay(0, new NinjaRateLimitError('url', 10)), 10000);
