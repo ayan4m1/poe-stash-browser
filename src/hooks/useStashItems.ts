@@ -13,6 +13,18 @@ import { baseApiUrl } from '../utils';
 // has actually changed.
 const combineQueries = <T>(results: T[]) => results;
 
+// Built in one place so the prefetch below and the useQueries entry that is
+// meant to read what it wrote cannot drift apart - they did once already, when
+// the v1 segment was added to the query alone and the prefetched tab was
+// silently refetched.
+const stashQueryKey = (league: string | undefined, stashId: string) => [
+  'account',
+  'v1',
+  league,
+  'stash',
+  stashId
+];
+
 const annotateStash = (result: StashResponse) => {
   result.stash.items = result.stash.items?.map((item) => ({
     ...item,
@@ -55,7 +67,7 @@ export default function useStashItems(league?: string, stashes?: StashTab[]) {
         // this request already spent part of the budget, so keep the body rather
         // than letting the query below ask for the same tab a second time
         queryClient.setQueryData(
-          ['account', league, 'stash', stash.id],
+          stashQueryKey(league, stash.id),
           annotateStash((await result.json()) as StashResponse)
         );
       }
@@ -79,7 +91,7 @@ export default function useStashItems(league?: string, stashes?: StashTab[]) {
   const queries = useQueries({
     queries:
       stashes?.map((stash) => ({
-        queryKey: ['account', 'v1', league, 'stash', stash.id],
+        queryKey: stashQueryKey(league, stash.id),
         enabled: Boolean(initialized && limiter),
         queryFn: () =>
           limiter?.schedule(async () => {
